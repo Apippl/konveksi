@@ -9,7 +9,6 @@ import Button from "../components/Button";
 import Alert from "../components/Alert";
 import { labelClass, popCardClass } from "../components/ui";
 import PengumumanBanner from "../components/PengumumanBanner";
-import { payWithSnap } from "../snapPay";
 
 const FONT_LIST = [
   { nama: "Sans", css: "sans-serif" },
@@ -232,17 +231,10 @@ export default function Desain() {
         }
         navigate("/pesanan-saya");
       } else {
-        if (res.data.snap_token) {
-          await payWithSnap(res.data.snap_token, {
-            onSuccess: () => navigate("/pesanan-saya"),
-            onPending: () => navigate("/pesanan-saya"),
-            onClose: () => navigate("/pesanan-saya"),
-            onError: () =>
-              setError("Pembayaran gagal. Coba bayar lagi dari Riwayat Pesanan."),
-          });
-        } else {
-          navigate("/pesanan-saya");
-        }
+        // Mode teks: arahkan ke halaman pembayaran (Checkout).
+        // Pembayaran Midtrans (popup Snap) hanya dibuka dari tombol
+        // "Bayar" di halaman Checkout, biar tidak double aksi.
+        navigate(`/checkout/${res.data.id}`);
       }
     } catch (err) {
       const detail = err.response?.data?.detail;

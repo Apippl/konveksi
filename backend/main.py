@@ -927,15 +927,9 @@ def buat_pesanan(
             )
     db.refresh(p)
 
-    if mode == "teks":
-        try:
-            buat_snap_token(p, db, user=user)
-        except Exception as e:
-            logger.error(
-                "Gagal membuat Snap token untuk pesanan %s: %s",
-                p.kode_pesanan or p.id,
-                e,
-            )
+    # Snap token TIDAK dibuat di sini. Token dibuat saat user menekan
+    # "Bayar" di halaman Checkout (/api/pesanan/{id}/bayar), supaya tidak
+    # ada transaksi Midtrans ganda / kedaluwarsa.
 
     return p
 
