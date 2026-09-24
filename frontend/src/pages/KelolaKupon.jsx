@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 import Pagination from "../components/Pagination";
+import ExpiryPicker, { formatExpiryID, sudahLewat } from "../components/ExpiryPicker";
 import { labelClass } from "../components/ui";
 
 function rupiah(n) {
@@ -116,14 +117,14 @@ export default function KelolaKupon() {
           {editKode ? `Edit ${editKode}` : "Kupon Baru"}
         </h3>
         {error && <Alert variant="error" className="mb-4">{error}</Alert>}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-2 gap-3 mb-2">
           <div>
             <label className={labelClass}>Kode</label>
             <Input value={form.kode} onChange={(e) => set("kode", e.target.value)} placeholder="HEMAT10" disabled={!!editKode} />
           </div>
           <div>
             <label className={labelClass}>Tipe</label>
-            <select value={form.tipe} onChange={(e) => set("tipe", e.target.value)} className="px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] w-full outline-none">
+            <select value={form.tipe} onChange={(e) => setForm((f) => ({ ...f, tipe: e.target.value, maks_potongan: e.target.value === "persen" ? f.maks_potongan : "" }))} className="px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] w-full outline-none">
               <option value="persen">Persen (%)</option>
               <option value="nominal">Nominal (Rp)</option>
             </select>
@@ -136,19 +137,24 @@ export default function KelolaKupon() {
             <label className={labelClass}>Min. belanja (Rp)</label>
             <Input type="number" min={0} value={form.min_total} onChange={(e) => set("min_total", e.target.value)} />
           </div>
-          <div>
-            <label className={labelClass}>Maks. potongan (Rp, khusus %)</label>
-            <Input type="number" min={0} value={form.maks_potongan} onChange={(e) => set("maks_potongan", e.target.value)} placeholder="Opsional" />
+          {form.tipe === "persen" && (
+            <div>
+              <label className={labelClass}>Maks. potongan (Rp)</label>
+              <Input type="number" min={0} value={form.maks_potongan} onChange={(e) => set("maks_potongan", e.target.value)} placeholder="Opsional" />
+            </div>
+          )}
+          <div className={form.tipe === "persen" ? "" : "col-span-2"}>
+            <label className={labelClass}>Status</label>
+            <label className="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] font-semibold">
+              <input type="checkbox" checked={form.aktif} onChange={(e) => set("aktif", e.target.checked)} className="w-4 h-4" /> Aktif
+            </label>
           </div>
-          <div>
+          <div className="col-span-2">
             <label className={labelClass}>Kadaluarsa (opsional)</label>
-            <Input type="datetime-local" value={form.expiry} onChange={(e) => set("expiry", e.target.value)} />
+            <ExpiryPicker value={form.expiry} onChange={(v) => set("expiry", v)} />
           </div>
         </div>
-        <label className="flex items-center gap-2 cursor-pointer mb-4 text-[13px] font-semibold">
-          <input type="checkbox" checked={form.aktif} onChange={(e) => set("aktif", e.target.checked)} className="w-4 h-4" /> Aktif
-        </label>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-3">
           <Button variant="primary" size="md" disabled={saving} onClick={simpan}>
             {saving ? "Menyimpan..." : editKode ? "Simpan Perubahan" : "Buat Kupon"}
           </Button>
@@ -167,8 +173,14 @@ export default function KelolaKupon() {
                 <div>
                   <div className="font-bold text-[14px] text-slate-900 font-[family-name:var(--font-mono)]">
                     {k.kode} {!k.aktif && <span className="text-[10px] text-slate-400">nonaktif</span>}
+                    {k.aktif && sudahLewat(k.expiry) && (
+                      <span className="ml-1.5 text-[10px] font-bold uppercase text-red-600 border border-red-200 px-1.5 py-0.5 rounded-xs">kedaluwarsa</span>
+                    )}
                   </div>
                   <div className="text-[12px] text-slate-500">{deskripsi(k)}</div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    {k.expiry ? `Berakhir: ${formatExpiryID(k.expiry)}` : "Tanpa batas waktu"}
+                  </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button onClick={() => mulaiEdit(k)} className="text-[11px] font-bold uppercase border border-slate-300 px-2.5 py-1.5 rounded-xs cursor-pointer">Edit</button>

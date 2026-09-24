@@ -57,6 +57,23 @@ export default function Admin({ readOnly = false }) {
     };
   }
 
+  // Helper tanggal lokal (tanpa UTC-shift) untuk preset periode.
+  const tanggalLokal = (d) => {
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  };
+  const hariIni = tanggalLokal(new Date());
+  const awalBulanIni = tanggalLokal(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const tujuhHariLalu = tanggalLokal(new Date(Date.now() - 6 * 86400000));
+
+  const pakaiPresetTanggal = (dari, sampai) => {
+    setDariTanggal(dari);
+    setSampaiTanggal(sampai);
+    setHalaman(1);
+  };
+
+  const rentangTerbalik = dariTanggal && sampaiTanggal && dariTanggal > sampaiTanggal;
+
   const handleUpdateStatus = async (id, statusBaru) => {
     try {
       await api.put(`/api/pesanan/${id}`, { status: statusBaru });
@@ -287,25 +304,64 @@ export default function Admin({ readOnly = false }) {
             placeholder="Kode, nama, no. WA, atau teks..."
           />
         </div>
-        <div>
+        <div className="min-w-[280px]">
           <label className="block mb-1 text-[11px] font-semibold uppercase text-slate-500">
-            Dari Tanggal
+            Periode
           </label>
-          <Input
-            type="date"
-            value={dariTanggal}
-            onChange={ubahFilter(setDariTanggal)}
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-[11px] font-semibold uppercase text-slate-500">
-            Sampai Tanggal
-          </label>
-          <Input
-            type="date"
-            value={sampaiTanggal}
-            onChange={ubahFilter(setSampaiTanggal)}
-          />
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {[
+              { label: "Hari ini", dari: hariIni, sampai: hariIni },
+              { label: "7 hari", dari: tujuhHariLalu, sampai: hariIni },
+              { label: "Bulan ini", dari: awalBulanIni, sampai: hariIni },
+            ].map((p) => {
+              const aktif = dariTanggal === p.dari && sampaiTanggal === p.sampai;
+              return (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => pakaiPresetTanggal(p.dari, p.sampai)}
+                  className={`px-2.5 py-1.5 rounded-xs border text-[11px] font-bold cursor-pointer transition-colors ${
+                    aktif
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              aria-label="Dari tanggal"
+              title="Dari tanggal"
+              value={dariTanggal}
+              max={sampaiTanggal || hariIni}
+              onChange={ubahFilter(setDariTanggal)}
+              className={rentangTerbalik ? "!border-red-400" : ""}
+            />
+            <span className="text-slate-400 text-[12px] shrink-0">s/d</span>
+            <Input
+              type="date"
+              aria-label="Sampai tanggal"
+              title="Sampai tanggal"
+              value={sampaiTanggal}
+              min={dariTanggal || undefined}
+              max={hariIni}
+              onChange={ubahFilter(setSampaiTanggal)}
+              className={rentangTerbalik ? "!border-red-400" : ""}
+            />
+          </div>
+          {rentangTerbalik ? (
+            <p className="text-[11px] text-red-600 font-semibold mt-1 mb-0">
+              Tanggal "dari" lebih besar dari "sampai" — tidak ada data yang cocok.
+            </p>
+          ) : dariTanggal || sampaiTanggal ? (
+            <p className="text-[11px] text-slate-500 mt-1 mb-0">
+              {dariTanggal || "…"} s/d {sampaiTanggal || "…"}
+            </p>
+          ) : null}
         </div>
         <div>
           <label className="block mb-1 text-[11px] font-semibold uppercase text-slate-500">
