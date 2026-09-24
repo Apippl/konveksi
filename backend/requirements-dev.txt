@@ -1,0 +1,5 @@
+﻿-r requirements.txt
+sqlacodegen==4.0.4
+passlib==1.7.4
+fastapi-mail==1.6.8
+aiosmtplib==5.1.3

@@ -1,0 +1,33 @@
+# Logs / debug dumps
+error.txt
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/venv/
+.venv/
+venv/
+
+# Editor directories and files
+.vscode/
+.idea/
+
+# OS sampah
+.DS_Store
+Thumbs.db
+
+# Node / build
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Env
+.env
+*.env
+!*.env.example
+
+# Uploads / generated artifacts
+backend/uploads/
+backend/generated_dst/

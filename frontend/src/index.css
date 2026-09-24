@@ -1,0 +1,238 @@
+﻿@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* ============================================================
+   DESIGN TOKENS — dark industrial
+   Palet: hitam #161616 / #272727, biru #273D8A, merah #CD2C01,
+   dengan putih hangat untuk teks.
+   ============================================================ */
+@theme {
+  --color-coal: #161616;        /* background terdalam */
+  --color-ink: #272727;         /* panel, kartu, header, sidebar */
+  --color-steel: #333333;       /* border / pemisah */
+  --color-graphite: #3d3d3d;    /* hover / permukaan naik */
+  --color-paper: #edeae4;       /* teks utama (putih hangat) */
+  --color-muted: #9a9a9a;       /* teks sekunder */
+  --color-brand: #273d8a;       /* aksi utama, nav aktif */
+  --color-brand-soft: #5b72c9;  /* link / fokus di atas gelap */
+  --color-danger: #cd2c01;      /* destruktif / error */
+  --color-danger-soft: #e2542c;
+  --color-success: #3e8e62;
+  --color-success-soft: #5fbf8a;
+  --color-warning: #c08a2b;
+  --color-warning-soft: #d9a441;
+
+  --color-page: #161616;        /* alias lama -> sama dengan coal */
+}
+
+:root {
+  --font-mono: ui-monospace, "SF Mono", Consolas, monospace;
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--color-paper);
+  background-color: var(--color-coal);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-coal);
+  color: var(--color-paper);
+}
+
+/* Reset Elemen Form untuk Industrial Look */
+input, select, textarea, button {
+  font-family: inherit;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--color-brand-soft) !important;
+  border-color: transparent !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6f6f6f;
+}
+
+select option {
+  background-color: #272727;
+  color: #edeae4;
+}
+
+/* SweetAlert2 — tema gelap global (semua notif popup ikut gelap) */
+div.swal2-container {
+  font-family: inherit !important;
+}
+
+.swal2-popup {
+  background-color: var(--color-ink) !important;
+  color: var(--color-paper) !important;
+  border: 1px solid var(--color-steel) !important;
+  border-top: 4px solid var(--color-brand) !important;
+  border-radius: 2px !important;
+}
+
+/* Aksen atas sesuai jenis notif (via customClass, karena ikon dimatikan). */
+.swal2-popup.swal-accent-success { border-top-color: var(--color-success) !important; }
+.swal2-popup.swal-accent-danger { border-top-color: var(--color-danger) !important; }
+.swal2-popup.swal-accent-warning { border-top-color: var(--color-warning) !important; }
+
+.swal2-title {
+  color: #ffffff !important;
+}
+
+.swal2-html-container {
+  color: #c2c2c2 !important;
+}
+
+.swal2-actions {
+  gap: 8px !important;
+}
+
+.swal2-close {
+  color: var(--color-muted) !important;
+}
+.swal2-close:hover {
+  color: #ffffff !important;
+}
+
+/* Default tombol Swal (tanpa !important, supaya confirmButtonColor per-panggilan
+   yang di-set inline tetap menang — mis. tombol hapus merah). */
+div.swal2-container .swal2-confirm {
+  background-color: var(--color-brand);
+  color: #ffffff;
+}
+div.swal2-container .swal2-cancel {
+  background-color: var(--color-graphite);
+  color: var(--color-paper);
+}
+
+/* Ikon bawaan Swal dibuang total — tidak dipakai sama sekali. */
+.swal2-icon {
+  display: none !important;
+}
+
+/* ============================================================
+   THEME BRIDGE
+   Halaman-halaman dipenuhi kelas utilitas Tailwind versi terang
+   (bg-white, text-slate-900, dst). Blok ini memetakan kelas-kelas
+   itu ke token gelap di atas, jadi seluruh app ikut gelap tanpa
+   harus mengedit ratusan baris. Ditulis TANPA @layer supaya
+   menang atas layer utilities Tailwind.
+   Kode baru sebaiknya pakai token langsung (bg-ink, text-paper, ...).
+   ============================================================ */
+
+/* --- Permukaan / background --- */
+.bg-white { background-color: var(--color-ink); }
+.bg-slate-50 { background-color: #1c1c1c; }
+.bg-slate-100 { background-color: #2f2f2f; }
+.bg-slate-900 { background-color: var(--color-brand); }
+.bg-blue-600 { background-color: var(--color-brand); }
+.bg-blue-50 { background-color: #1e2540; }
+.bg-blue-100 { background-color: #232c52; }
+.bg-red-50 { background-color: #2a1713; }
+.bg-red-100 { background-color: #3a1e18; }
+.bg-red-600 { background-color: var(--color-danger); }
+.bg-green-50 { background-color: #14231a; }
+.bg-green-100 { background-color: #1b2f23; }
+.bg-green-500 { background-color: var(--color-success); }
+.bg-green-600 { background-color: var(--color-success); }
+.bg-amber-100 { background-color: #33281a; }
+.bg-purple-100 { background-color: #232c52; }
+.bg-sky-100 { background-color: #232c52; }
+.bg-yellow-400 { background-color: var(--color-warning); }
+
+/* --- Teks --- */
+.text-slate-900 { color: #ffffff; }
+.text-slate-800 { color: var(--color-paper); }
+.text-slate-700 { color: #d8d5cf; }
+.text-slate-600 { color: #c2c2c2; }
+.text-slate-500 { color: var(--color-muted); }
+.text-slate-400 { color: #8a8a8a; }
+.text-slate-300 { color: #6f6f6f; }
+.text-blue-600, .text-blue-700, .text-blue-800 { color: var(--color-brand-soft); }
+.text-red-500, .text-red-600, .text-red-700 { color: var(--color-danger-soft); }
+.text-green-600, .text-green-700 { color: var(--color-success-soft); }
+.text-amber-600, .text-amber-700 { color: var(--color-warning-soft); }
+.text-purple-600 { color: var(--color-brand-soft); }
+.text-sky-600 { color: var(--color-brand-soft); }
+
+/* --- Border --- */
+.border-slate-100 { border-color: #2e2e2e; }
+.border-slate-200 { border-color: var(--color-steel); }
+.border-slate-300 { border-color: var(--color-graphite); }
+.border-slate-900 { border-color: var(--color-brand-soft); }
+.border-blue-200 { border-color: #39456f; }
+.border-blue-600 { border-color: var(--color-brand); }
+.border-red-200 { border-color: #5a2a20; }
+.border-red-300 { border-color: #7a382a; }
+.border-green-200 { border-color: #2b4a37; }
+.border-green-300 { border-color: #3a6349; }
+.border-amber-200 { border-color: #544227; }
+.border-amber-300 { border-color: #6e5733; }
+.border-purple-200 { border-color: #39456f; }
+.border-sky-200 { border-color: #39456f; }
+
+/* --- Hover --- */
+.hover\:bg-slate-100:hover { background-color: #2f2f2f; }
+.hover\:bg-slate-50:hover { background-color: #1f1f1f; }
+.hover\:bg-slate-700:hover { background-color: var(--color-graphite); }
+.hover\:bg-blue-100:hover { background-color: #232c52; }
+.hover\:bg-blue-700:hover { background-color: #1e2f6b; }
+.hover\:bg-red-50:hover { background-color: #2a1713; }
+.hover\:bg-red-600:hover { background-color: var(--color-danger); }
+.hover\:bg-red-700:hover { background-color: #a82401; }
+.hover\:text-slate-900:hover { color: #ffffff; }
+.hover\:text-red-600:hover { color: var(--color-danger-soft); }
+.hover\:text-blue-800:hover { color: #7d90dd; }
+.hover\:border-slate-400:hover { border-color: #555555; }
+
+/* --- Active / focus / disabled --- */
+.active\:bg-blue-600:active { background-color: var(--color-brand); }
+.focus\:border-slate-900:focus { border-color: var(--color-brand-soft); }
+.disabled\:bg-slate-100:disabled { background-color: #2a2a2a; }
+.disabled\:text-slate-400:disabled { color: #6f6f6f; }
+
+/* --- Hero banner fade-in + slow zoom --- */
+@keyframes hero-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.animate-hero-fade { animation: hero-fade 0.9s ease-out both; }
+@keyframes hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+.animate-hero-zoom { animation: hero-zoom 8s ease-out both; }
+
+/* --- Sudut: tegas tapi tidak tajam (gantikan rounded-xs 2px bawaan) --- */
+.rounded-xs { border-radius: 8px; }
+
+/* --- Background auth: biru kiri, hitam kanan, batas zigzag --- */
+.auth-zigzag-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-color: #161616; }
+.auth-zigzag-bg::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #31449c 0%, #273d8a 55%, #1b2340 100%); clip-path: polygon(0 0, 70% 0, 66% 2.5%, 72% 5%, 66% 7.5%, 72% 10%, 66% 12.5%, 72% 15%, 66% 17.5%, 72% 20%, 66% 22.5%, 72% 25%, 66% 27.5%, 72% 30%, 66% 32.5%, 72% 35%, 66% 37.5%, 72% 40%, 66% 42.5%, 72% 45%, 66% 47.5%, 72% 50%, 66% 52.5%, 72% 55%, 66% 57.5%, 72% 60%, 66% 62.5%, 72% 65%, 66% 67.5%, 72% 70%, 66% 72.5%, 72% 75%, 66% 77.5%, 72% 80%, 66% 82.5%, 72% 85%, 66% 87.5%, 72% 90%, 66% 92.5%, 72% 95%, 66% 97.5%, 70% 100%, 0 100%); }
+
+
+
+/* --- Sidebar: scroll tetap jalan tapi bar-nya disembunyikan --- */
+.sidebar-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.sidebar-scroll::-webkit-scrollbar { display: none; }
+/* --- Cetak nota: hanya area nota yang keluar di kertas --- */
+@media print { body * { visibility: hidden; } .nota-print, .nota-print * { visibility: visible; } .nota-print { position: absolute; left: 0; top: 0; width: 100%; border: 0 !important; } .no-print { display: none !important; } }
+/* --- Nota: kertas putih beneran (timpa remap dark theme) --- */
+.nota-print { background-color: #ffffff !important; color: #111111 !important; }
+.nota-print .text-slate-600 { color: #475569 !important; }
+.nota-print .text-slate-500 { color: #64748b !important; }
+.nota-print .border-slate-300 { border-color: #cbd5e1 !important; }
+.nota-print .border-slate-400 { border-color: #94a3b8 !important; }
+/* --- Nota profesional (layar + cetak, aman tinta) --- */
+.nota-print { background-color: #ffffff !important; color: #111111 !important; border: 1px solid #cbd5e1; border-radius: 10px; padding: 28px; box-shadow: 0 8px 30px rgba(0,0,0,0.35); font-size: 13px; line-height: 1.5; }
+.nota-kop { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 3px double #273d8a; }
+.nota-brand { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; color: #111111 !important; } .nota-brand span { color: #273d8a !important; } .nota-tagline { font-size: 11px; color: #64748b !important; }
+.nota-nomor { text-align: right; } .nota-nota-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #64748b !important; } .nota-kode { font-weight: 800; font-size: 16px; } .nota-status { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #b45309 !important; border: 1px solid #f59e0b; border-radius: 999px; padding: 2px 10px; } .nota-status.lunas { color: #047857 !important; border-color: #10b981; }
+.nota-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-bottom: 16px; } .nota-label { color: #64748b !important; }
+.nota-tabel { width: 100%; border-collapse: collapse; margin-bottom: 16px; } .nota-tabel th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #475569 !important; border-top: 2px solid #273d8a; border-bottom: 2px solid #273d8a; padding: 8px 4px; } .nota-tabel td { padding: 8px 4px; border-bottom: 1px dashed #cbd5e1; } .nota-tabel .r { text-align: right; }
+.nota-bawah { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px; } .nota-bayar { flex: 1; } .nota-total { border: 2px solid #273d8a; border-radius: 8px; padding: 10px 16px; text-align: right; min-width: 200px; } .nota-total span { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #64748b !important; } .nota-total strong { font-size: 20px; }
+.nota-ttd { display: flex; justify-content: space-between; gap: 32px; margin-top: 36px; text-align: center; font-size: 12px; } .nota-ttd div { flex: 1; } .nota-ttd span { color: #64748b !important; } .nota-ttd strong { display: block; margin-top: 56px; border-top: 1px solid #94a3b8; padding-top: 6px; font-weight: 600; }
+.nota-kaki { text-align: center; font-size: 11px; color: #64748b !important; margin-top: 20px; }
+/* --- Kontrol form native (kalender, panah select/number) ikut tema gelap --- */
+input, select, textarea { color-scheme: dark; }
