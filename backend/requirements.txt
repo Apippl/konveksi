@@ -49,4 +49,3 @@ uvicorn==0.52.4
 watchfiles==1.2.0
 websockets==17.1
 slowapi==0.1.9
-redis==5.2.1

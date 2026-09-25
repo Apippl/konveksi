@@ -4,13 +4,13 @@ Aplikasi pemesanan bordir custom: client desain (teks/gambar) → admin tentukan
 
 ## Tech Stack
 - **Database:** MariaDB / MySQL (`utf8mb4_unicode_ci`), driver PyMySQL, ORM SQLAlchemy 2.0
-- **Backend:** FastAPI (Python 3.12) + Uvicorn (4 workers), JWT (python-jose HS256), Midtrans Snap + Core API, slowapi + Redis (rate limiting), SMTP Gmail (OTP)
+- **Backend:** FastAPI (Python 3.12) + Uvicorn, JWT (python-jose HS256), Midtrans Snap + Core API, slowapi (rate limiting in-memory), SMTP Gmail (OTP)
 - **Frontend:** React 19 + Vite 8 + Tailwind CSS v4, axios, react-router-dom 7, SweetAlert2
 
 ## Yang dibutuhkan hoster
 | Kebutuhan | Keterangan |
 |---|---|
-| Python 3.12 + MySQL/MariaDB + Redis (opsional, wajib untuk multi-worker) | Backend |
+| Python 3.12 + MySQL/MariaDB | Backend |
 | Node.js 18+ (hanya untuk build) + static hosting dengan SPA fallback | Frontend |
 | Akun Midtrans (Server Key + Client Key) + akun Gmail App Password | Kredensial, lihat `.env` |
 
@@ -32,7 +32,6 @@ MAIL_USERNAME= MAIL_PASSWORD= MAIL_FROM= MAIL_SERVER= MAIL_PORT=
 MIDTRANS_SERVER_KEY= MIDTRANS_CLIENT_KEY= MIDTRANS_IS_PRODUCTION=false
 FRONTEND_URL=https://domain-frontend
 CORS_ORIGINS=https://domain-frontend
-REDIS_URL=redis://redis:6379        # produksi multi-worker; lokal boleh memory://
 ALLOWED_HOSTS=domain-backend        # opsional
 ```
 
@@ -52,7 +51,7 @@ Jalan:
 # lokal
 python -m uvicorn main:app --reload
 # produksi (atau pakai Procfile/Dockerfile/docker-compose.yml)
-uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 ## 2. Frontend

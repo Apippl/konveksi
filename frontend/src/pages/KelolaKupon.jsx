@@ -13,7 +13,7 @@ function rupiah(n) {
   return "Rp " + (n ?? 0).toLocaleString("id-ID");
 }
 
-const kosong = { kode: "", tipe: "persen", nilai: 10, min_total: 0, maks_potongan: "", expiry: "", aktif: true };
+const kosong = { kode: "", tipe: "persen", nilai: 10, min_total: 0, expiry: "", aktif: true };
 
 export default function KelolaKupon() {
   const [daftar, setDaftar] = useState([]);
@@ -52,7 +52,6 @@ export default function KelolaKupon() {
         tipe: form.tipe,
         nilai: parseInt(form.nilai) || 0,
         min_total: parseInt(form.min_total) || 0,
-        maks_potongan: form.maks_potongan === "" ? null : parseInt(form.maks_potongan),
         expiry: form.expiry || null,
         aktif: !!form.aktif,
       };
@@ -79,7 +78,6 @@ export default function KelolaKupon() {
       tipe: k.tipe,
       nilai: k.nilai,
       min_total: k.min_total,
-      maks_potongan: k.maks_potongan ?? "",
       expiry: k.expiry ? String(k.expiry).slice(0, 16) : "",
       aktif: k.aktif,
     });
@@ -99,8 +97,25 @@ export default function KelolaKupon() {
   const deskripsi = (k) => {
     const nilai = k.tipe === "persen" ? `${k.nilai}%` : rupiah(k.nilai);
     const syarat = k.min_total > 0 ? ` • min. ${rupiah(k.min_total)}` : "";
-    const maks = k.tipe === "persen" && k.maks_potongan ? ` • maks. ${rupiah(k.maks_potongan)}` : "";
-    return `${nilai}${syarat}${maks}`;
+    return `${nilai}${syarat}`;
+  };
+
+  const toggleAktif = async (k) => {
+    try {
+      await api.put(`/api/superadmin/kupon/${k.kode}`, {
+        kode: k.kode,
+        tipe: k.tipe,
+        nilai: k.nilai,
+        min_total: k.min_total ?? 0,
+        maks_potongan: null,
+        expiry: k.expiry || null,
+        aktif: !k.aktif,
+      });
+      muat();
+      Swal.fire({ title: k.aktif ? "Kupon dinonaktifkan." : "Kupon diaktifkan.", timer: 1200, showConfirmButton: false });
+    } catch (err) {
+      Swal.fire({ title: "Gagal", text: err.response?.data?.detail || "Gagal mengubah status.", confirmButtonColor: "#273d8a" });
+    }
   };
 
   return (
@@ -124,7 +139,7 @@ export default function KelolaKupon() {
           </div>
           <div>
             <label className={labelClass}>Tipe</label>
-            <select value={form.tipe} onChange={(e) => setForm((f) => ({ ...f, tipe: e.target.value, maks_potongan: e.target.value === "persen" ? f.maks_potongan : "" }))} className="px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] w-full outline-none">
+            <select value={form.tipe} onChange={(e) => set("tipe", e.target.value)} className="px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] w-full outline-none">
               <option value="persen">Persen (%)</option>
               <option value="nominal">Nominal (Rp)</option>
             </select>
@@ -136,18 +151,6 @@ export default function KelolaKupon() {
           <div>
             <label className={labelClass}>Min. belanja (Rp)</label>
             <Input type="number" min={0} value={form.min_total} onChange={(e) => set("min_total", e.target.value)} />
-          </div>
-          {form.tipe === "persen" && (
-            <div>
-              <label className={labelClass}>Maks. potongan (Rp)</label>
-              <Input type="number" min={0} value={form.maks_potongan} onChange={(e) => set("maks_potongan", e.target.value)} placeholder="Opsional" />
-            </div>
-          )}
-          <div className={form.tipe === "persen" ? "" : "col-span-2"}>
-            <label className={labelClass}>Status</label>
-            <label className="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[13px] font-semibold">
-              <input type="checkbox" checked={form.aktif} onChange={(e) => set("aktif", e.target.checked)} className="w-4 h-4" /> Aktif
-            </label>
           </div>
           <div className="col-span-2">
             <label className={labelClass}>Kadaluarsa (opsional)</label>
@@ -183,6 +186,16 @@ export default function KelolaKupon() {
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => toggleAktif(k)}
+                    className={`text-[11px] font-bold uppercase border px-2.5 py-1.5 rounded-xs cursor-pointer ${
+                      k.aktif
+                        ? "text-amber-600 border-amber-200"
+                        : "text-green-600 border-green-200"
+                    }`}
+                  >
+                    {k.aktif ? "Nonaktifkan" : "Aktifkan"}
+                  </button>
                   <button onClick={() => mulaiEdit(k)} className="text-[11px] font-bold uppercase border border-slate-300 px-2.5 py-1.5 rounded-xs cursor-pointer">Edit</button>
                   <button onClick={() => hapus(k.kode)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 px-2.5 py-1.5 rounded-xs cursor-pointer">Hapus</button>
                 </div>

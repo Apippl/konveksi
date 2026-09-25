@@ -36,8 +36,8 @@ app = FastAPI(title="Konveksi Bordir Simple")
 logger = logging.getLogger(__name__)
 
 # ---- Rate limiting via slowapi (IP-based, melengkapi rate_limit per-email di bawah) ----
-# Multi-worker: set REDIS_URL=redis://redis:6379 agar counter shared.
-# Single-worker/dev: REDIS_URL=memory:// (default).
+# Storage in-memory, single worker. Sengaja tanpa Redis: traffic satu toko tidak
+# butuh multi-worker, dan satu service lebih sedikit untuk dirawat hoster.
 try:
     from slowapi import Limiter
     from slowapi.util import get_remote_address
@@ -45,23 +45,13 @@ try:
     from slowapi.middleware import SlowAPIMiddleware
     from fastapi.responses import JSONResponse
 
-    _redis_url = os.getenv("REDIS_URL", "memory://")
-    try:
-        limiter = Limiter(
-            key_func=get_remote_address,
-            storage_uri=_redis_url,
-            strategy="fixed-window",
-            default_limits=[],
-        )
-    except Exception:
-        logger.warning("REDIS_URL tidak valid (%s); fallback ke memory.", _redis_url)
-        limiter = Limiter(key_func=get_remote_address, default_limits=[])
+    limiter = Limiter(
+        key_func=get_remote_address,
+        strategy="fixed-window",
+        default_limits=[],
+    )
     app.state.limiter = limiter
     app.add_middleware(SlowAPIMiddleware)
-    if _redis_url.startswith("redis"):
-        logger.info("Rate limit storage: Redis (%s)", _redis_url)
-    else:
-        logger.info("Rate limit storage: memory (set REDIS_URL untuk multi-worker).")
 
     @app.exception_handler(RateLimitExceeded)
     async def _rate_limit_handler(request: Request, exc: RateLimitExceeded):
