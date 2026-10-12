@@ -1518,7 +1518,7 @@ async def minta_otp_aksi(
     user.otp_attempts = 0
     db.commit()
 
-    terkirim = await kirim_otp_email(user.email, kode_otp, tujuan="reset")
+    terkirim = await kirim_otp_email(user.email, kode_otp, tujuan="aksi")
     if not terkirim:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -1881,7 +1881,7 @@ async def transfer_mulai(
     db.add(transfer)
     db.commit()
 
-    terkirim = await kirim_otp_email(user.email, kode_otp, tujuan="reset")
+    terkirim = await kirim_otp_email(user.email, kode_otp, tujuan="transfer_lama")
     if not terkirim:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

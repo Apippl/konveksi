@@ -33,24 +33,87 @@ async def _kirim_email(email: str, judul: str, text_content: str, html_content: 
     return await asyncio.to_thread(send_email)
 
 
-async def kirim_otp_email(email: str, kode: str, tujuan: str) -> bool:
-    if tujuan == "daftar":
-        judul = "Kode Verifikasi Pendaftaran Akun"
-        keterangan = "Kode OTP untuk verifikasi pendaftaran akun kamu adalah:"
-    else:
-        judul = "Kode Reset Password"
-        keterangan = "Kode OTP untuk mengatur ulang password kamu adalah:"
+_TEMPLATE_OTP = {
+    "daftar": {
+        "judul": "Verifikasi Pendaftaran Akun",
+        "headline": "Selesaikan pendaftaran akunmu",
+        "deskripsi": "Masukkan kode berikut di halaman verifikasi untuk mengaktifkan akun kamu:",
+        "peringatan": "Jika kamu tidak mendaftar akun, abaikan email ini.",
+    },
+    "reset": {
+        "judul": "Reset Password",
+        "headline": "Atur ulang password-mu",
+        "deskripsi": "Masukkan kode berikut di halaman reset password untuk membuat password baru:",
+        "peringatan": "Jika kamu tidak meminta reset password, abaikan email ini dan pastikan akunmu aman.",
+    },
+    "aksi": {
+        "judul": "Verifikasi Aksi Sensitif",
+        "headline": "Konfirmasi aksi penting",
+        "deskripsi": (
+            "Masukkan kode berikut di halaman admin untuk melanjutkan aksi sensitif "
+            "(kelola pengelola / pengaturan penting):"
+        ),
+        "peringatan": "Jangan lanjutkan dan segera ganti password jika kamu tidak meminta kode ini.",
+    },
+    "transfer_lama": {
+        "judul": "Konfirmasi Transfer Kepemilikan (Tahap 1)",
+        "headline": "Setujui pelepasan kepemilikan?",
+        "deskripsi": (
+            "Masukkan kode berikut di halaman transfer untuk menyetujui pelepasan "
+            "peran superadmin (tahap 1 dari 2):"
+        ),
+        "peringatan": "Abaikan email ini dan segera ganti password jika kamu tidak memulai transfer ini.",
+    },
+}
 
-    text_content = f"{judul}\n\n{keterangan} {kode}\n\nKode ini berlaku selama 5 menit. Jangan berikan ke siapa pun!"
+_TEMPLATE_OTP_NETRAL = {
+    "judul": "Kode Verifikasi",
+    "headline": "Kode verifikasi kamu",
+    "deskripsi": "Masukkan kode berikut di halaman verifikasi:",
+    "peringatan": "Jika kamu tidak meminta kode ini, abaikan email ini.",
+}
 
-    html_content = f"""
-    <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>{judul}</h2>
-        <p>{keterangan}</p>
-        <h1 style="color: #1a202c; letter-spacing: 4px;">{kode}</h1>
-        <p>Kode ini berlaku selama 5 menit. Jangan berikan kode ini ke siapa pun!</p>
+
+def _bungkus_html_otp(judul: str, headline: str, deskripsi: str, kode: str, peringatan: str) -> str:
+    # Inline CSS + layout tabel-sederhana agar rapi di Gmail/Outlook.
+    # Tidak ada JS/tombol copy di email (di-strip klien email), jadi kode dibuat
+    # mudah diblok sekaligus via user-select:all + instruksi salin manual.
+    return f"""
+    <div style="background-color:#f1f5f9;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;">
+      <div style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+        <div style="background:#0f172a;color:#ffffff;padding:18px 24px;">
+          <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:0.7;">Konveksi Bordir Simple</div>
+          <div style="font-size:18px;font-weight:bold;margin-top:4px;">{judul}</div>
+        </div>
+        <div style="padding:24px;">
+          <p style="margin:0 0 8px;font-size:15px;font-weight:bold;color:#0f172a;">{headline}</p>
+          <p style="margin:0 0 16px;font-size:14px;color:#334155;">{deskripsi}</p>
+          <div style="background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;text-align:center;padding:18px 12px;margin:0 0 8px;">
+            <div style="font-family:'Courier New',Courier,monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#0f172a;user-select:all;-webkit-user-select:all;-ms-user-select:all;">{kode}</div>
+          </div>
+          <p style="margin:0 0 16px;font-size:12px;color:#64748b;text-align:center;">Blok kode di atas lalu salin (ketuk-tahan / Ctrl+C).</p>
+          <p style="margin:0 0 16px;font-size:13px;color:#334155;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:10px 12px;">Kode berlaku <strong>5 menit</strong> sejak dikirim.</p>
+          <div style="margin:0 0 16px;font-size:13px;color:#7f1d1d;background:#fef2f2;border-left:4px solid #dc2626;border-radius:0 6px 6px 0;padding:10px 12px;">Jangan bagikan kode ini ke siapa pun. {peringatan}</div>
+          <p style="margin:0;font-size:12px;color:#94a3b8;">Email otomatis, jangan dibalas.</p>
+        </div>
+      </div>
     </div>
     """
+
+
+async def kirim_otp_email(email: str, kode: str, tujuan: str) -> bool:
+    tpl = _TEMPLATE_OTP.get(tujuan, _TEMPLATE_OTP_NETRAL)
+    judul = tpl["judul"]
+
+    text_content = (
+        f"{judul} — Konveksi Bordir Simple\n\n"
+        f"{tpl['headline']}\n"
+        f"{tpl['deskripsi']} {kode}\n\n"
+        "Kode berlaku 5 menit. Jangan berikan ke siapa pun!\n"
+        f"{tpl['peringatan']}"
+    )
+
+    html_content = _bungkus_html_otp(judul, tpl["headline"], tpl["deskripsi"], kode, tpl["peringatan"])
 
     return await _kirim_email(email, judul, text_content, html_content)
 
