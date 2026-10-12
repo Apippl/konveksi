@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api";
 import Card from "../components/Card";
 import Input from "../components/Input";
+import OtpBoxes from "../components/OtpBoxes";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 import SesiAksiGate from "../components/SesiAksiGate";
@@ -54,7 +55,7 @@ export default function TransferOwnership() {
   }
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
+    <div className="max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0">
       <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
         Transfer Ownership
       </h2>
@@ -80,7 +81,7 @@ export default function TransferOwnership() {
             <p className="text-[12px] text-amber-600 mb-4">
               Pastikan email ini sudah terdaftar dan terverifikasi di sistem sebelum transfer.
             </p>
-            <Button variant="danger" size="md" disabled={loading} onClick={handleMulai}>
+            <Button variant="danger" size="md" full disabled={loading} onClick={handleMulai}>
               {loading ? "Memproses..." : "Mulai Transfer Ownership"}
             </Button>
           </Card>
@@ -93,14 +94,10 @@ export default function TransferOwnership() {
           <label className="block mb-1.5 text-[13px] font-semibold text-slate-700">
             Kode OTP dari Email Kamu (Superadmin Saat Ini)
           </label>
-          <Input
-            value={kode}
-            onChange={(e) => setKode(e.target.value)}
-            placeholder="Kode OTP (6 digit)"
-            maxLength={6}
-            className="mb-4"
-          />
-          <Button variant="primary" size="md" disabled={loading || kode.length < 6} onClick={handleKonfirmasiLama}>
+          <div className="mb-4">
+            <OtpBoxes value={kode} onChange={setKode} disabled={loading} />
+          </div>
+          <Button variant="primary" size="md" full disabled={loading || kode.length < 6} onClick={handleKonfirmasiLama}>
             {loading ? "Memverifikasi..." : "Konfirmasi & Lanjut ke Tahap 2"}
           </Button>
         </Card>

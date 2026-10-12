@@ -7,6 +7,8 @@ export default function Pagination({
   itemLabel = "item",
 }) {
   if (totalItems === 0) return null;
+  // Hanya tampil kalau lewat batas (lebih dari 1 halaman).
+  if ((totalHalaman ?? 1) <= 1) return null;
 
   const mulai = (halaman - 1) * perHalaman + 1;
   const selesai = Math.min(halaman * perHalaman, totalItems);
@@ -15,8 +17,8 @@ export default function Pagination({
     "px-3 py-1.5 rounded-xs border border-graphite bg-graphite text-paper text-[12px] font-semibold hover:bg-steel hover:border-steel transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer";
 
   return (
-    <div className="flex items-center justify-between mt-4 text-[13px] text-muted">
-      <span>
+    <div className="flex items-center justify-center sm:justify-between mt-4 text-[13px] text-muted">
+      <span className="hidden sm:inline">
         Menampilkan {mulai}–{selesai} dari {totalItems} {itemLabel}
       </span>
 

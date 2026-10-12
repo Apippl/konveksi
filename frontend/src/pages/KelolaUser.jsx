@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import Pagination from "../components/Pagination";
 import Alert from "../components/Alert";
 
-export default function KelolaUser() {
+export default function KelolaUser({ tanpaHeader = false }) {
   const [daftar, setDaftar] = useState([]);
   const [cari, setCari] = useState("");
   const [loading, setLoading] = useState(true);
@@ -121,20 +121,24 @@ export default function KelolaUser() {
   };
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
-      <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
-        Kelola User
-      </h2>
-      <p className="text-[13px] text-slate-500 mb-5">
-        Verifikasi manual, nonaktifkan, reset password, atau hapus akun client.
-      </p>
+    <div className={tanpaHeader ? "min-w-0" : "max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0"}>
+      {!tanpaHeader && (
+        <>
+          <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
+            Kelola User
+          </h2>
+          <p className="text-[13px] text-slate-500 mb-5">
+            Verifikasi manual, nonaktifkan, reset password, atau hapus akun client.
+          </p>
+        </>
+      )}
 
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       <Card className="p-5">
         <div className="flex gap-2 mb-4">
-          <Input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari nama / email..." className="flex-1" />
-          <Button variant="primary" size="md" onClick={cariUser}>Cari</Button>
+          <Input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari nama / email..." className="flex-1 min-h-[35px] sm:min-h-0 text-[16px] sm:text-sm" />
+          <Button variant="primary" size="md" onClick={cariUser} className="min-h-[35px] sm:min-h-0">Cari</Button>
         </div>
 
         {loading ? (
@@ -142,28 +146,28 @@ export default function KelolaUser() {
         ) : daftar.length === 0 ? (
           <p className="text-slate-400 text-sm">Tidak ada user.</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {halamanIni.map((u) => (
-              <div key={u.id} className="flex justify-between items-center gap-3 px-3 py-2.5 rounded-xs border border-slate-200 flex-wrap">
-                <div className="min-w-0">
-                  <div className="font-semibold text-[13px] text-slate-900 flex items-center gap-2 flex-wrap">
+              <div key={u.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-3 py-2.5 rounded-xs border border-slate-200 min-w-0">
+                <div className="min-w-0 w-full sm:w-auto">
+                  <div className="font-semibold text-[14px] sm:text-[13px] text-slate-900 flex items-center gap-2 flex-wrap">
                     {u.nama}
-                    {!u.is_verified && <span className="text-[10px] font-bold uppercase text-amber-600">belum verif</span>}
-                    {!u.is_active && <span className="text-[10px] font-bold uppercase text-red-600">nonaktif</span>}
+                    {!u.is_verified && <span className="text-[11px] sm:text-[10px] font-bold uppercase text-amber-600">belum verif</span>}
+                    {!u.is_active && <span className="text-[11px] sm:text-[10px] font-bold uppercase text-red-600">nonaktif</span>}
                   </div>
-                  <div className="text-[12px] text-slate-500">{u.email}</div>
+                  <div className="text-[13px] sm:text-[12px] text-slate-500 break-all">{u.email}</div>
                 </div>
-                <div className="flex gap-1.5 flex-wrap shrink-0">
-                  <button onClick={() => handleToggleVerify(u)} className="text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-2 py-1.5 cursor-pointer">
+                <div className="flex gap-1 sm:gap-1.5 w-full sm:w-auto sm:shrink-0">
+                  <button onClick={() => handleToggleVerify(u)} className="flex-1 sm:flex-none min-w-0 truncate inline-flex items-center justify-center min-h-[30px] sm:min-h-0 text-[10px] sm:text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-1 sm:px-2 py-1.5 cursor-pointer">
                     {u.is_verified ? "Unverif" : "Verif"}
                   </button>
-                  <button onClick={() => handleToggleAktif(u)} className="text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-2 py-1.5 cursor-pointer">
+                  <button onClick={() => handleToggleAktif(u)} className="flex-1 sm:flex-none min-w-0 truncate inline-flex items-center justify-center min-h-[30px] sm:min-h-0 text-[10px] sm:text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-1 sm:px-2 py-1.5 cursor-pointer">
                     {u.is_active ? "Blokir" : "Aktifkan"}
                   </button>
-                  <button onClick={() => handleReset(u)} className="text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-2 py-1.5 cursor-pointer">
+                  <button onClick={() => handleReset(u)} className="flex-1 sm:flex-none min-w-0 truncate inline-flex items-center justify-center min-h-[30px] sm:min-h-0 text-[10px] sm:text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-1 sm:px-2 py-1.5 cursor-pointer">
                     Reset PW
                   </button>
-                  <button onClick={() => handleHapus(u)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 rounded-xs px-2 py-1.5 cursor-pointer">
+                  <button onClick={() => handleHapus(u)} className="flex-1 sm:flex-none min-w-0 truncate inline-flex items-center justify-center min-h-[30px] sm:min-h-0 text-[10px] sm:text-[11px] font-bold uppercase text-red-600 border border-red-200 rounded-xs px-1 sm:px-2 py-1.5 cursor-pointer transition-colors hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700">
                     Hapus
                   </button>
                 </div>
@@ -184,3 +188,4 @@ export default function KelolaUser() {
     </div>
   );
 }
+

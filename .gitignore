@@ -31,3 +31,4 @@ frontend/dist-ssr/
 # Uploads / generated artifacts
 backend/uploads/
 backend/generated_dst/
+.aider*

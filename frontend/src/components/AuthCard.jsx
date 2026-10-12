@@ -1,4 +1,5 @@
-import { authCardClass, alertClass } from "./ui";
+import { authCardClass } from "./ui";
+import Alert from "./Alert";
 
 // Titik jahitan mengikuti persis gerigi batas biru-hitam (x 66/72 tiap 2.5%).
 const TITIK_JAHIT = (() => {
@@ -68,7 +69,7 @@ export default function AuthCard({ title, subtitle, error, footer, children, top
 
       {subtitle && <p className="text-slate-500 text-[13px] leading-normal mb-5">{subtitle}</p>}
 
-      {error && <div className={alertClass({ variant: "error", className: "mb-4" })}>{error}</div>}
+      {error && <Alert variant="error">{error}</Alert>}
 
       {children}
 

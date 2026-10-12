@@ -92,6 +92,18 @@ div.swal2-container {
 
 .swal2-actions {
   gap: 8px !important;
+  /* Tombol popup susun atas-bawah + penuh kiri-kanan (1 tombol full, 2 tombol stack). */
+  flex-direction: column !important;
+  align-items: stretch !important;
+  /* Kasih jarak manis dari tepi card: full tapi tidak nempel. */
+  width: auto !important;
+  margin: 8px 20px 4px !important;
+}
+
+.swal2-actions .swal2-styled {
+  width: 100% !important;
+  margin: 0 !important;
+  min-height: 44px !important;
 }
 
 .swal2-close {
@@ -110,6 +122,11 @@ div.swal2-container .swal2-confirm {
 div.swal2-container .swal2-cancel {
   background-color: var(--color-graphite);
   color: var(--color-paper);
+}
+
+/* Popup penanda (via Alert): agak ke atas dari tengah, tidak nempel topbar. */
+.swal2-container.swal-penanda {
+  padding-bottom: 22vh !important;
 }
 
 /* Ikon bawaan Swal dibuang total — tidak dipakai sama sekali. */
@@ -187,13 +204,17 @@ div.swal2-container .swal2-cancel {
 .hover\:bg-red-50:hover { background-color: #2a1713; }
 .hover\:bg-red-600:hover { background-color: var(--color-danger); }
 .hover\:bg-red-700:hover { background-color: #a82401; }
+.hover\:bg-amber-100:hover { background-color: #33281a; }
 .hover\:text-slate-900:hover { color: #ffffff; }
+.hover\:text-white:hover { color: #ffffff; }
+.active\:text-white:active { color: #ffffff; }
 .hover\:text-red-600:hover { color: var(--color-danger-soft); }
 .hover\:text-blue-800:hover { color: #7d90dd; }
 .hover\:border-slate-400:hover { border-color: #555555; }
 
 /* --- Active / focus / disabled --- */
 .active\:bg-blue-600:active { background-color: var(--color-brand); }
+.active\:bg-amber-100:active { background-color: #3d3018; }
 .focus\:border-slate-900:focus { border-color: var(--color-brand-soft); }
 .disabled\:bg-slate-100:disabled { background-color: #2a2a2a; }
 .disabled\:text-slate-400:disabled { color: #6f6f6f; }
@@ -206,6 +227,8 @@ div.swal2-container .swal2-cancel {
 
 /* --- Sudut: tegas tapi tidak tajam (gantikan rounded-xs 2px bawaan) --- */
 .rounded-xs { border-radius: 8px; }
+/* --- Kotak OTP: samakan lengkung dengan card (kalahkan radius 2px global input) --- */
+.otp-box { border-radius: 8px !important; }
 
 /* --- Background auth: biru kiri, hitam kanan, batas zigzag --- */
 .auth-zigzag-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-color: #161616; }

@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import Card from "../components/Card";
 import Input from "../components/Input";
+import OtpBoxes from "../components/OtpBoxes";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 
@@ -39,8 +40,8 @@ export default function TransferKonfirmasiBaru() {
 
   if (selesai) {
     return (
-      <div className="max-w-[450px] mt-16 mx-auto px-4">
-        <Card className="p-6 text-center">
+      <div className="max-w-[450px] mt-16 mx-auto px-0 sm:px-4">
+        <Card className="p-5 text-center">
           <h2 className="text-lg font-bold text-slate-900 mb-2">Transfer Berhasil</h2>
           <p className="text-[13px] text-slate-500 mb-5">
             Akun kamu sekarang punya hak akses superadmin. Silakan login.
@@ -54,8 +55,8 @@ export default function TransferKonfirmasiBaru() {
   }
 
   return (
-    <div className="max-w-[450px] mt-16 mx-auto px-4">
-      <Card className="p-6">
+    <div className="max-w-[450px] mt-16 mx-auto px-0 sm:px-4">
+      <Card className="p-5">
         <h2 className="text-lg font-bold text-slate-900 mb-2">Konfirmasi Transfer Ownership</h2>
         <p className="text-[13px] text-slate-500 mb-5">
           Masukkan kode OTP yang dikirim ke email kamu untuk menyelesaikan transfer.
@@ -75,7 +76,9 @@ export default function TransferKonfirmasiBaru() {
         />
 
         <label className="block mb-1.5 text-[13px] font-semibold text-slate-700">Kode OTP</label>
-        <Input value={kode} onChange={(e) => setKode(e.target.value)} maxLength={6} className="mb-4" />
+        <div className="mb-4">
+          <OtpBoxes value={kode} onChange={setKode} disabled={loading} />
+        </div>
 
         <Button variant="primary" size="md" full disabled={loading} onClick={handleKonfirmasi}>
           {loading ? "Memproses..." : "Konfirmasi Transfer"}

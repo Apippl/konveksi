@@ -14,9 +14,20 @@ const WARNA_AKSI = {
   buat_pengelola: "text-green-600",
 };
 
+const DAFTAR_AKSI = [
+  { value: "", label: "Semua aksi" },
+  { value: "hapus_pesanan", label: "hapus pesanan" },
+  { value: "hapus_user", label: "hapus user" },
+  { value: "hapus_pengelola", label: "hapus pengelola" },
+  { value: "ubah_pesanan", label: "ubah pesanan" },
+  { value: "reset_password", label: "reset password" },
+  { value: "buat_pengelola", label: "tambah pengelola" },
+];
+
 export default function LogAktivitas() {
   const [daftar, setDaftar] = useState([]);
   const [filter, setFilter] = useState("");
+  const [dropdownBuka, setDropdownBuka] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [halaman, setHalaman] = useState(1);
@@ -41,7 +52,7 @@ export default function LogAktivitas() {
   }, []);
 
   return (
-    <div className="max-w-[900px] mt-6 mx-auto px-4">
+    <div className="max-w-[900px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0">
       <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
         Log Aktivitas
       </h2>
@@ -52,18 +63,51 @@ export default function LogAktivitas() {
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       <Card className="p-5">
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {["", "hapus_pesanan", "hapus_user", "hapus_pengelola", "ubah_pesanan", "reset_password", "buat_pengelola"].map((a) => (
-            <button
-              key={a || "semua"}
-              onClick={() => { setFilter(a); muat(a); }}
-              className={`px-3 py-1.5 rounded-xs border text-[11px] font-bold uppercase cursor-pointer ${
-                filter === a ? "bg-slate-900 text-white border-slate-900" : "bg-transparent text-slate-600 border-slate-300"
-              }`}
+        <div className="mb-4 relative">
+          <button
+            type="button"
+            onClick={() => setDropdownBuka((v) => !v)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-white border border-slate-300 rounded-xs text-sm text-slate-900 hover:border-slate-400 focus:outline-none focus:border-slate-900 cursor-pointer transition-colors min-h-[44px] box-border"
+          >
+            <span className="font-medium truncate">
+              {DAFTAR_AKSI.find((a) => a.value === filter)?.label || "Semua aksi"}
+            </span>
+            <svg
+              className={`w-4 h-4 text-slate-400 transition-transform shrink-0 ${dropdownBuka ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
             >
-              {a ? a.replace(/_/g, " ") : "Semua"}
-            </button>
-          ))}
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {dropdownBuka && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setDropdownBuka(false)}
+              />
+              <div className="absolute top-[calc(100%_+_4px)] left-0 right-0 bg-white border border-slate-300 rounded-xs max-h-[220px] overflow-y-auto z-20 shadow-[0_4px_10px_rgba(15,23,42,0.08)]">
+                {DAFTAR_AKSI.map((a) => (
+                  <div
+                    key={a.value || "semua"}
+                    onClick={() => {
+                      setFilter(a.value);
+                      muat(a.value);
+                      setDropdownBuka(false);
+                    }}
+                    className={`px-3 py-2.5 cursor-pointer text-sm text-slate-900 hover:bg-slate-50 transition-colors ${
+                      filter === a.value ? "bg-slate-100 font-bold" : "bg-white font-normal"
+                    }`}
+                  >
+                    {a.label}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {loading ? (

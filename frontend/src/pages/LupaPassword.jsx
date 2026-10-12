@@ -21,6 +21,7 @@ export default function LupaPassword() {
 
     try {
       await api.post("/api/auth/forgot-password", { email: cleanEmail });
+      sessionStorage.setItem("pendingResetEmail", cleanEmail);
       navigate("/reset-password", { state: { email: cleanEmail } });
     } catch (err) {
       const detail = err.response?.data?.detail;

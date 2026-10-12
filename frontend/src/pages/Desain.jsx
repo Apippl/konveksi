@@ -253,7 +253,7 @@ export default function Desain() {
   const selectedSizes = daftarUkuran.map((d) => d.ukuran);
 
   return (
-    <div className="relative max-w-[1100px] mt-5 mx-auto font-[sans-serif] px-4 box-border">
+    <div className="relative max-w-[1100px] mt-5 mx-auto font-[sans-serif] px-0 pb-6 sm:px-4 sm:pb-0 box-border min-w-0">
       <PengumumanBanner />
       {tokoTutup && (
         <div className="absolute inset-0 z-10 bg-black/85 flex flex-col items-center justify-center text-center rounded-xs p-8">
@@ -273,9 +273,9 @@ export default function Desain() {
         </Alert>
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch min-w-0">
         {/* KOLOM KIRI: Form Input */}
-        <Card className="p-5 flex flex-col box-border">
+        <Card className="p-5 flex flex-col box-border min-w-0">
           <h3 className="text-sm font-bold text-slate-600 uppercase tracking-[0.5px] mt-0 mb-4">
             Pengaturan Desain
           </h3>
@@ -375,7 +375,7 @@ export default function Desain() {
                         type="button"
                         disabled={loading}
                         onClick={() => hapusBaris(item.id)}
-                        className="text-slate-400 hover:text-red-600 p-1 cursor-pointer transition-colors"
+                        className="text-slate-400 hover:text-white hover:bg-red-600 active:bg-red-700 p-1.5 rounded-xs cursor-pointer transition-colors"
                         title="Hapus baris"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,9 +402,11 @@ export default function Desain() {
             </button>
           </div>
 
-          <div className="mb-4 grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>Panjang (cm)</label>
+          <div className="mb-4">
+            <label className={labelClass}>Ukuran Bordiran (cm)</label>
+            <div className="grid grid-cols-2 gap-3">
+            <div className="min-w-0">
+              <label className={labelClass}>Panjang bordiran (cm)</label>
               <Input
                 type="number"
                 min="1"
@@ -413,8 +415,8 @@ export default function Desain() {
                 onChange={(e) => handlePanjangChange(e.target.value)}
               />
             </div>
-            <div>
-              <label className={labelClass}>Lebar (cm)</label>
+            <div className="min-w-0">
+              <label className={labelClass}>Lebar bordiran (cm)</label>
               <Input
                 type="number"
                 min="1"
@@ -425,6 +427,10 @@ export default function Desain() {
                   setLebarCm(Math.max(1, isNaN(parsed) ? 1 : parsed));
                 }}
               />
+              {mode === "gambar" && (
+                <p className="text-[11px] text-slate-400 mt-1 mb-0">Otomatis mengikuti proporsi gambar.</p>
+              )}
+            </div>
             </div>
           </div>
 
@@ -585,7 +591,7 @@ export default function Desain() {
         </Card>
 
         {/* KOLOM KANAN: Panel Menyatu (Live Preview + Total Harga + Action) */}
-        <Card className="p-5 flex flex-col box-border">
+        <Card className="p-5 flex flex-col box-border min-w-0">
           <h3 className="text-sm font-bold text-slate-600 uppercase tracking-[0.5px] mt-0 mb-4">
             Live Preview ({panjangCm} x {lebarCm} cm)
           </h3>
@@ -619,7 +625,8 @@ export default function Desain() {
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-[0.5px] mt-0 mb-2">
               Panduan Ukuran (Standar Asia)
             </h3>
-            <table className="w-full border-collapse text-[12px]">
+            <div className="overflow-x-auto -mx-1 px-1">
+            <table className="w-full min-w-[440px] border-collapse text-[12px]">
               <thead>
                 <tr className="bg-slate-100 text-[10px] text-slate-600 uppercase">
                   <th className="px-2 py-1.5 text-left border border-slate-200">Ukuran</th>
@@ -646,6 +653,7 @@ export default function Desain() {
                 ))}
               </tbody>
             </table>
+            </div>
             <p className="text-[10.5px] text-slate-400 mt-1.5 mb-0">
               Lebar dada: ketiak kiri ke ketiak kanan. Panjang badan: bahu tertinggi ke ujung bawah kaos.
             </p>

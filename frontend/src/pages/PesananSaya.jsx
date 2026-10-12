@@ -27,7 +27,7 @@ function Timeline({ status }) {
                 i < idx ? "bg-green-600 text-white" : i === idx ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-500"
               }`}
             >
-              {i < idx ? "✓" : i + 1}
+              {i < idx ? "✓" : i === 3 && status === "Selesai" ? "★" : i + 1}
             </span>
             <span className={`text-[9px] font-bold uppercase whitespace-nowrap ${i <= idx ? "text-slate-900" : "text-slate-400"}`}>
               {s}
@@ -169,7 +169,7 @@ export default function PesananSaya() {
   const riwayat = list.filter((p) => !perluAksi(p));
 
   return (
-    <div className="max-w-[650px] mt-6 mx-auto px-3">
+    <div className="max-w-[650px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0">
       <h2 className="text-slate-900 mb-5 text-[20px] font-bold uppercase">
         Pesanan Saya
       </h2>
@@ -210,21 +210,35 @@ export default function PesananSaya() {
           // Jangan izinkan bayar sebelum admin mengisi biaya bordir (mode gambar),
           // kalau tidak client bisa bayar harga baju saja.
           const bisaBayar = sudahDinilai && (p.total_harga ?? 0) > 0 && p.status_pembayaran !== "Lunas";
+          // Nota hanya keluar setelah lunas, bukan saat belum bayar.
+          const lunas = p.status_pembayaran === "Lunas";
+          // Total harga baju: dari detail per-size, fallback dari total untuk pesanan lama.
+          const totalQty = (p.detail?.length
+            ? p.detail.reduce((s, d) => s + (d.jumlah ?? 0), 0)
+            : 0) || p.jumlah || 1;
+          const totalBaju = p.detail?.length
+            ? p.detail.reduce((s, d) => s + ((d.harga_baju ?? 0) * (d.jumlah ?? 0)), 0)
+            : Math.max(0, (p.total_harga ?? 0) - (p.harga_bordir ?? 0) * totalQty);
+          const rincianUkuran = p.detail?.length
+            ? p.detail.map((d) => `Size ${d.ukuran} (${d.jumlah} pcs)`)
+            : [`Size ${p.ukuran || "M"} (${p.jumlah || 1} pcs)`];
 
           return (
             <div
               key={p.id}
-              className="bg-white border border-slate-300 rounded-xs p-4 mb-4 box-border"
+              className="bg-white border border-slate-300 rounded-xs p-5 mb-4 box-border"
             >
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs text-slate-500">
+              <div className="flex justify-between items-center gap-2 mb-3">
+                <span className="text-xs text-slate-500 min-w-0">
                   Kode Pesanan: <strong>{p.kode_pesanan || `#${p.id}`}</strong>
                   {" • "}
                   {p.dibuat_pada
                     ? new Date(p.dibuat_pada).toLocaleDateString("id-ID")
                     : "Baru saja"}
                 </span>
-                <StatusBadge status={p.status || "Pending"} />
+                <span className="hidden shrink-0 sm:block">
+                  <StatusBadge status={p.status || "Pending"} />
+                </span>
               </div>
 
               <Timeline status={p.status || "Pending"} />
@@ -244,48 +258,53 @@ export default function PesananSaya() {
               <div className="mb-3">
                 <div className="flex justify-between items-start gap-3 text-[13px] text-slate-700">
                   <div>
-                    Font: <strong>{p.font || "-"}</strong> • Dimensi:{" "}
-                    <strong>
-                      {p.panjang_cm} × {p.lebar_cm} cm
-                    </strong>
-                    {p.warna && (
-                      <>
-                        {" "}
-                        • Warna:{" "}
-                        <span
-                          className="inline-block w-3 h-3 align-middle border border-slate-300"
-                          style={{ backgroundColor: p.warna }}
-                        />{" "}
-                        <strong className="font-[family-name:var(--font-mono)]">
-                          {p.warna}
+                    <div className="flex flex-col gap-1">
+                      <span>
+                        Font: <strong>{p.font || "-"}</strong>
+                      </span>
+                      <span>
+                        Dimensi:{" "}
+                        <strong>
+                          {p.panjang_cm} × {p.lebar_cm} cm
                         </strong>
-                      </>
-                    )}
-
-                    {/* Rincian Ukuran & Jumlah dari relasi detail */}
-                    <div className="mt-2 space-y-1">
-                      <span className="text-[12px] text-slate-500 block">Rincian Ukuran:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {p.detail && p.detail.length > 0 ? (
-                          p.detail.map((d, idx) => (
+                      </span>
+                      {p.warna && (
+                          <span>
+                            Warna:{" "}
                             <span
-                              key={idx}
-                              className="bg-slate-100 border border-slate-200 text-slate-800 text-[12px] px-2 py-0.5 rounded-xs"
-                            >
-                              Size <strong>{d.ukuran}</strong> ({d.jumlah} pcs) @ Rp {(d.harga_baju ?? 0).toLocaleString("id-ID")}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-[12px] text-slate-700">
-                            Size <strong>{p.ukuran || "M"}</strong> • <strong>{p.jumlah || 1} pcs</strong>
+                              className="inline-block w-3 h-3 align-middle border border-slate-300"
+                              style={{ backgroundColor: p.warna }}
+                            />{" "}
+                            <strong className="font-[family-name:var(--font-mono)]">
+                              {p.warna}
+                            </strong>
                           </span>
-                        )}
-                      </div>
+                      )}
+                      {rincianUkuran.length > 1 ? (
+                        <span className="flex flex-col gap-0.5">
+                          <span>Ukuran:</span>
+                          {rincianUkuran.map((r, idx) => (
+                            <strong key={idx}>{r}</strong>
+                          ))}
+                        </span>
+                      ) : (
+                        <span>
+                          Ukuran: <strong>{rincianUkuran[0]}</strong>
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="text-right whitespace-nowrap">
                     <span className="text-[12px] text-slate-500 block">
+                      Baju:{" "}
+                      <strong>
+                        {totalBaju > 0
+                          ? `Rp ${totalBaju.toLocaleString("id-ID")}`
+                          : "(menunggu admin)"}
+                      </strong>
+                    </span>
+                    <span className="text-[12px] text-slate-500 block mt-1">
                       Bordir:{" "}
                       <strong>
                         {sudahDinilai
@@ -336,50 +355,51 @@ export default function PesananSaya() {
                 )}
               </div>
 
-              {sudahDikirim && (
-                <div className="mb-3 p-3 rounded-xs bg-blue-50 border border-blue-200 flex items-center justify-between gap-3">
-                  <span className="text-[12px] text-blue-700">
-                    Pesanan sudah dikirim. Konfirmasi kalau barang sudah kamu terima.
-                  </span>
-                  <button
-                    onClick={() => handleKonfirmasiTerima(p.id)}
-                    className="bg-green-600 text-white px-3 py-2 rounded-xs border-0 cursor-pointer text-[11px] font-bold uppercase whitespace-nowrap"
-                  >
-                    Konfirmasi Diterima
-                  </button>
-                </div>
-              )}
-
-              {(bisaBayar || isPending) && (
+              {(bisaBayar || isPending || lunas || sudahDikirim) && (
                 <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                  <div className="flex justify-end items-center gap-2">
-                  {isPending && (
-                    <button
-                      onClick={() => handleHapusPesanan(p.id)}
-                      className="bg-transparent text-red-600 border border-red-200 px-2.5 py-[5px] rounded-xs cursor-pointer text-[11px] font-bold uppercase transition-all duration-150 ease-[ease] hover:bg-red-600 hover:text-white"
-                    >
-                      Batalkan Pesanan
-                    </button>
+                  {sudahDikirim && (
+                    <div className="p-3 rounded-xs bg-blue-50 border border-blue-200 flex flex-col gap-2.5">
+                      <span className="text-[12px] text-blue-700">
+                        Pesanan sudah dikirim. Konfirmasi kalau barang sudah kamu terima.
+                      </span>
+                      <button
+                        onClick={() => handleKonfirmasiTerima(p.id)}
+                        className="w-full min-h-[44px] sm:min-h-0 inline-flex items-center justify-center bg-green-600 text-white px-3.5 py-2 rounded-xs border-0 cursor-pointer text-[11px] font-bold uppercase whitespace-nowrap"
+                      >
+                        Konfirmasi Diterima
+                      </button>
+                    </div>
                   )}
-
-                  {bisaBayar && (
-                    <button
-                      onClick={() => handleBayar(p)}
-                      className="bg-slate-900 text-white px-3.5 py-2 rounded-xs border-0 cursor-pointer text-[11px] font-bold uppercase"
-                    >
-                      Bayar Sekarang
-                    </button>
+                  {(bisaBayar || isPending) && (
+                    <div className="flex flex-col items-stretch justify-center gap-2">
+                      {bisaBayar && (
+                        <button
+                          onClick={() => handleBayar(p)}
+                          className="w-full min-h-[44px] sm:min-h-0 inline-flex items-center justify-center bg-slate-900 text-white px-3.5 py-2 rounded-xs border-0 cursor-pointer text-[11px] font-bold uppercase"
+                        >
+                          Bayar Sekarang
+                        </button>
+                      )}
+                      {isPending && (
+                        <button
+                          onClick={() => handleHapusPesanan(p.id)}
+                          className="w-full min-h-[44px] sm:min-h-0 inline-flex items-center justify-center bg-transparent text-red-600 border border-red-200 px-3.5 py-2 rounded-xs cursor-pointer text-[11px] font-bold uppercase transition-all duration-150 ease-[ease] hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700"
+                        >
+                          Batalkan Pesanan
+                        </button>
+                      )}
+                    </div>
                   )}
-
-                  {sudahDinilai && (
-                    <button
-                      onClick={() => navigate(`/nota/${p.id}`)}
-                      className="bg-transparent text-slate-700 border border-slate-300 px-3 py-2 rounded-xs cursor-pointer text-[11px] font-bold uppercase"
-                    >
-                      Nota
-                    </button>
+                  {lunas && (
+                    <div className="flex flex-col items-stretch justify-center gap-2">
+                      <button
+                        onClick={() => navigate(`/nota/${p.id}`)}
+                        className="w-full min-h-[44px] sm:min-h-0 inline-flex items-center justify-center bg-transparent text-slate-700 border border-slate-300 px-3 py-2 rounded-xs cursor-pointer text-[11px] font-bold uppercase"
+                      >
+                        Nota
+                      </button>
+                    </div>
                   )}
-                  </div>
                 </div>
               )}
             </div>

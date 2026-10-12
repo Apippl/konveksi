@@ -58,13 +58,19 @@ export default function Admin({ readOnly = false }) {
   }
 
   // Helper tanggal lokal (tanpa UTC-shift) untuk preset periode.
-  const tanggalLokal = (d) => {
-    const p = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-  };
-  const hariIni = tanggalLokal(new Date());
-  const awalBulanIni = tanggalLokal(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-  const tujuhHariLalu = tanggalLokal(new Date(Date.now() - 6 * 86400000));
+  // Dibungkus useMemo agar Date.now()/new Date() hanya dihitung sekali (stabil antar render).
+  const { hariIni, awalBulanIni, tujuhHariLalu } = useMemo(() => {
+    const tanggalLokal = (d) => {
+      const p = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    };
+    const now = new Date();
+    return {
+      hariIni: tanggalLokal(now),
+      awalBulanIni: tanggalLokal(new Date(now.getFullYear(), now.getMonth(), 1)),
+      tujuhHariLalu: tanggalLokal(new Date(now.getTime() - 6 * 86400000)),
+    };
+  }, []);
 
   const pakaiPresetTanggal = (dari, sampai) => {
     setDariTanggal(dari);
@@ -278,7 +284,7 @@ export default function Admin({ readOnly = false }) {
   ];
 
   return (
-    <div className="max-w-[1280px] mt-6 mx-auto px-4">
+    <div className="max-w-[1280px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0">
       <h2 className="font-[family-name:var(--font-display)] mb-4 text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px]">
         {readOnly ? "Riwayat Pesanan" : "Panel Admin: Kelola Pesanan"}
       </h2>
@@ -389,7 +395,7 @@ export default function Admin({ readOnly = false }) {
               setStatusFilter("");
               setHalaman(1);
             }}
-            className="px-3 py-2.5 rounded-xs border border-slate-300 bg-white text-[12px] font-semibold text-slate-600 cursor-pointer"
+            className="px-3 py-2.5 rounded-xs border border-amber-300 bg-transparent text-[12px] font-semibold text-amber-600 cursor-pointer transition-colors hover:bg-amber-100 active:bg-amber-100"
           >
             Reset
           </button>
@@ -648,7 +654,7 @@ export default function Admin({ readOnly = false }) {
                         {!readOnly && (
                           <button
                             onClick={() => handleHapusPesanan(item.id)}
-                            className="bg-transparent text-red-600 border border-red-200 px-1.5 py-1 rounded-xs cursor-pointer text-[11px] font-bold"
+                            className="bg-transparent text-red-600 border border-red-200 px-1.5 py-1 rounded-xs cursor-pointer text-[11px] font-bold transition-colors hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700"
                           >
                             Hapus
                           </button>

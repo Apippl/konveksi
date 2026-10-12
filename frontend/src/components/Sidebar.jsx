@@ -83,7 +83,7 @@ export default function Sidebar({ title = "Menu", items = [], user, onLogout, ra
               <button
                 onClick={onLogout}
                 title="Keluar"
-                className="border-0 bg-transparent p-2 text-red-600 cursor-pointer rounded-xs transition-colors duration-150 hover:bg-red-50"
+                className="border-0 bg-transparent p-2 text-red-600 cursor-pointer rounded-xs transition-colors duration-150 hover:bg-red-600 hover:text-white active:bg-red-700"
               >
                 <Icon name="logout" />
               </button>
@@ -104,7 +104,7 @@ export default function Sidebar({ title = "Menu", items = [], user, onLogout, ra
               </NavLink>
               <button
                 onClick={onLogout}
-                className="flex w-full items-center gap-2.5 mt-1 border-0 bg-transparent px-3.5 py-2.5 text-left text-xs font-semibold uppercase tracking-[0.5px] text-red-600 cursor-pointer rounded-xs transition-colors duration-150 hover:bg-red-50"
+                className="flex w-full items-center gap-2.5 mt-1 border-0 bg-transparent px-3.5 py-2.5 text-left text-xs font-semibold uppercase tracking-[0.5px] text-red-600 cursor-pointer rounded-xs transition-colors duration-150 hover:bg-red-600 hover:text-white active:bg-red-700"
               >
                 <Icon name="logout" />
                 Keluar

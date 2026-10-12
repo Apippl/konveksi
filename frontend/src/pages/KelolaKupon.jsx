@@ -3,10 +3,12 @@ import api from "../api";
 import Swal from "sweetalert2";
 import Card from "../components/Card";
 import Input from "../components/Input";
+import RupiahInput from "../components/RupiahInput";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 import Pagination from "../components/Pagination";
-import ExpiryPicker, { formatExpiryID, sudahLewat } from "../components/ExpiryPicker";
+import ExpiryPicker from "../components/ExpiryPicker";
+import { formatExpiryID, sudahLewat } from "../utils/expiry";
 import { labelClass } from "../components/ui";
 
 function rupiah(n) {
@@ -119,7 +121,7 @@ export default function KelolaKupon() {
   };
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
+    <div className="max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4">
       <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
         Kupon Diskon
       </h2>
@@ -132,7 +134,7 @@ export default function KelolaKupon() {
           {editKode ? `Edit ${editKode}` : "Kupon Baru"}
         </h3>
         {error && <Alert variant="error" className="mb-4">{error}</Alert>}
-        <div className="grid grid-cols-2 gap-3 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
           <div>
             <label className={labelClass}>Kode</label>
             <Input value={form.kode} onChange={(e) => set("kode", e.target.value)} placeholder="HEMAT10" disabled={!!editKode} />
@@ -146,22 +148,26 @@ export default function KelolaKupon() {
           </div>
           <div>
             <label className={labelClass}>{form.tipe === "persen" ? "Persen (1-100)" : "Nominal (Rp)"}</label>
-            <Input type="number" min={1} value={form.nilai} onChange={(e) => set("nilai", e.target.value)} />
+            {form.tipe === "persen" ? (
+              <Input type="number" min={1} value={form.nilai} onChange={(e) => set("nilai", e.target.value)} />
+            ) : (
+              <RupiahInput value={form.nilai} onChange={(v) => set("nilai", v)} />
+            )}
           </div>
           <div>
             <label className={labelClass}>Min. belanja (Rp)</label>
-            <Input type="number" min={0} value={form.min_total} onChange={(e) => set("min_total", e.target.value)} />
+            <RupiahInput value={form.min_total} onChange={(v) => set("min_total", v)} />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 sm:col-span-2">
             <label className={labelClass}>Kadaluarsa (opsional)</label>
             <ExpiryPicker value={form.expiry} onChange={(v) => set("expiry", v)} />
           </div>
         </div>
-        <div className="flex gap-2 mt-3">
-          <Button variant="primary" size="md" disabled={saving} onClick={simpan}>
+        <div className="flex flex-col gap-2 mt-3">
+          <Button variant="primary" size="md" full disabled={saving} onClick={simpan}>
             {saving ? "Menyimpan..." : editKode ? "Simpan Perubahan" : "Buat Kupon"}
           </Button>
-          {editKode && <Button variant="outline" size="md" onClick={() => { setEditKode(null); setForm(kosong); }}>Batal</Button>}
+          {editKode && <Button variant="outline" size="md" full onClick={() => { setEditKode(null); setForm(kosong); }}>Batal</Button>}
         </div>
       </Card>
 
@@ -197,7 +203,7 @@ export default function KelolaKupon() {
                     {k.aktif ? "Nonaktifkan" : "Aktifkan"}
                   </button>
                   <button onClick={() => mulaiEdit(k)} className="text-[11px] font-bold uppercase border border-slate-300 px-2.5 py-1.5 rounded-xs cursor-pointer">Edit</button>
-                  <button onClick={() => hapus(k.kode)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 px-2.5 py-1.5 rounded-xs cursor-pointer">Hapus</button>
+                  <button onClick={() => hapus(k.kode)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 px-2.5 py-1.5 rounded-xs cursor-pointer transition-colors hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700">Hapus</button>
                 </div>
               </div>
             ))}

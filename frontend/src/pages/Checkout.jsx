@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import Swal from "sweetalert2";
 import Card from "../components/Card";
+import Alert from "../components/Alert";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { pesanError } from "../components/ui";
@@ -72,8 +73,8 @@ export default function Checkout() {
   if (loading) return <div className="p-10 text-center text-slate-500">Memuat checkout...</div>;
   if (error || !p) {
     return (
-      <div className="max-w-[640px] mx-auto px-4 mt-6">
-        <Card className="p-6 text-center text-red-500 text-sm">{error || "Pesanan tidak ditemukan."}</Card>
+      <div className="max-w-[640px] mx-auto px-0 mt-6 sm:px-4">
+        <Alert variant="error">{error || "Pesanan tidak ditemukan."}</Alert>
         <div className="mt-3">
           <Button variant="outline" size="md" onClick={() => navigate("/pesanan-saya")}>Kembali</Button>
         </div>
@@ -82,7 +83,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-[640px] mx-auto px-4 mt-6">
+    <div className="max-w-[640px] mx-auto px-0 mt-6 pb-6 sm:px-4 sm:pb-0">
       <h2 className="text-slate-900 text-[20px] font-bold uppercase mb-5">Checkout</h2>
 
       <Card className="p-5 mb-4">
@@ -92,8 +93,10 @@ export default function Checkout() {
             {p.dibuat_pada ? new Date(p.dibuat_pada).toLocaleDateString("id-ID") : ""}
           </span>
         </div>
-        <div className="text-[13px] text-slate-600 mb-4">
-          {p.teks ? `"${p.teks}" (${p.font || "-"})` : "Gambar kustom"} • {p.panjang_cm} × {p.lebar_cm} cm
+        <div className="text-[13px] text-slate-600 mb-4 flex flex-col gap-1">
+          <span>{p.teks ? `"${p.teks}"` : "Gambar kustom"}</span>
+          {p.teks ? <span>Font: <strong>{p.font || "-"}</strong></span> : null}
+          <span>Dimensi: <strong>{p.panjang_cm} × {p.lebar_cm} cm</strong></span>
         </div>
 
         <div className="border-t border-slate-200 pt-3 space-y-2 text-[13px]">
@@ -125,7 +128,7 @@ export default function Checkout() {
         {diskon ? (
           <div className="flex justify-between items-center text-[13px]">
             <span className="text-green-600 font-semibold">{diskon.kode} terpasang</span>
-            <button onClick={() => { setDiskon(null); setKode(""); }} className="text-[12px] text-red-600 font-semibold cursor-pointer bg-transparent border-0">
+            <button onClick={() => { setDiskon(null); setKode(""); }} className="text-[12px] text-red-600 font-semibold cursor-pointer bg-transparent border-0 rounded-xs px-2 py-1 transition-colors hover:text-white hover:bg-red-600 active:bg-red-700">
               Lepas
             </button>
           </div>

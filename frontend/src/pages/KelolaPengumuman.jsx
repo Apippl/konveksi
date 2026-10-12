@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import Alert from "../components/Alert";
 import Pagination from "../components/Pagination";
 
-export default function KelolaPengumuman() {
+export default function KelolaPengumuman({ tanpaHeader = false }) {
   const [daftar, setDaftar] = useState([]);
   const [judul, setJudul] = useState("");
   const [isi, setIsi] = useState("");
@@ -84,13 +84,17 @@ export default function KelolaPengumuman() {
   };
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
-      <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
-        Kelola Pengumuman
-      </h2>
-      <p className="text-[13px] text-slate-500 mb-5">
-        Satu pengumuman aktif tampil di halaman utama dan desain. Menyimpan baru otomatis menonaktifkan yang lama.
-      </p>
+    <div className={tanpaHeader ? "min-w-0" : "max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0"}>
+      {!tanpaHeader && (
+        <>
+          <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
+            Kelola Pengumuman
+          </h2>
+          <p className="text-[13px] text-slate-500 mb-5">
+            Satu pengumuman aktif tampil di halaman utama dan desain. Menyimpan baru otomatis menonaktifkan yang lama.
+          </p>
+        </>
+      )}
 
       <Card className="p-5 mb-6">
         <h3 className="text-sm font-bold text-slate-600 uppercase tracking-[0.5px] mt-0 mb-4">
@@ -106,11 +110,11 @@ export default function KelolaPengumuman() {
           className="w-full box-border px-3 py-2.5 rounded-xs border border-slate-300 text-[13px] outline-none mb-3 resize-y"
           style={{ display: "block", maxWidth: "100%" }}
         />
-        <div className="flex gap-2">
-          <Button variant="primary" size="md" disabled={submitting} onClick={handleSimpan}>
+        <div className="flex flex-col gap-2">
+          <Button variant="primary" size="md" full disabled={submitting} onClick={handleSimpan}>
             {submitting ? "Menyimpan..." : editId ? "Simpan Perubahan" : "Tampilkan Pengumuman"}
           </Button>
-          {editId && <Button variant="outline" size="md" onClick={() => { setEditId(null); setJudul(""); setIsi(""); }}>Batal</Button>}
+          {editId && <Button variant="outline" size="md" full onClick={() => { setEditId(null); setJudul(""); setIsi(""); }}>Batal</Button>}
         </div>
       </Card>
 
@@ -132,7 +136,7 @@ export default function KelolaPengumuman() {
                 <div className="flex gap-2 mt-2">
                   <button onClick={() => { setEditId(p.id); setJudul(p.judul); setIsi(p.isi); }} className="text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-2 py-1 cursor-pointer">Edit + Aktifkan</button>
                   {p.aktif && <button onClick={() => handleNonaktif(p.id)} className="text-[11px] font-bold uppercase border border-slate-300 rounded-xs px-2 py-1 cursor-pointer">Nonaktifkan</button>}
-                  <button onClick={() => handleHapus(p.id)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 rounded-xs px-2 py-1 cursor-pointer">Hapus</button>
+                  <button onClick={() => handleHapus(p.id)} className="text-[11px] font-bold uppercase text-red-600 border border-red-200 rounded-xs px-2 py-1 cursor-pointer transition-colors hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700">Hapus</button>
                 </div>
               </div>
             ))}

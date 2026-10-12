@@ -5,9 +5,10 @@ import Input from "../components/Input";
 import Textarea from "../components/Textarea";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
+import KelolaPengumuman from "./KelolaPengumuman";
 import { labelClass } from "../components/ui";
 
-export default function KelolaToko() {
+function IsiToko() {
   const [tutup, setTutup] = useState(false);
   const [pesanTutup, setPesanTutup] = useState("");
   const [judulA, setJudulA] = useState("Konveksi");
@@ -15,6 +16,7 @@ export default function KelolaToko() {
   const [subjudul, setSubjudul] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [gantiStatus, setGantiStatus] = useState(false);
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
 
@@ -33,19 +35,36 @@ export default function KelolaToko() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Toggle Tutup/Buka langsung tersimpan ke server saat di-tap.
+  const handleToggleTutup = async () => {
+    const nilaiBaru = !tutup;
+    setError("");
+    setOk("");
+    setGantiStatus(true);
+    try {
+      await api.put("/api/superadmin/pengaturan", { tutup: nilaiBaru });
+      setTutup(nilaiBaru);
+      setOk(nilaiBaru ? "Toko ditutup — pemesanan dihentikan." : "Toko dibuka kembali.");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Gagal mengubah status toko.");
+    } finally {
+      setGantiStatus(false);
+    }
+  };
+
+  // Tombol Simpan khusus teks hero landing (+ pesan saat tutup).
   const simpan = async () => {
     setError("");
     setOk("");
     setSaving(true);
     try {
       await api.put("/api/superadmin/pengaturan", {
-        tutup,
         pesan_tutup: pesanTutup,
         judul_a: judulA.trim() || "Konveksi",
         judul_b: judulB.trim() || "Bordir",
         subjudul,
       });
-      setOk("Pengaturan tersimpan dan langsung tayang.");
+      setOk("Teks hero tersimpan dan langsung tayang.");
     } catch (err) {
       setError(err.response?.data?.detail || "Gagal menyimpan.");
     } finally {
@@ -54,14 +73,7 @@ export default function KelolaToko() {
   };
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
-      <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
-        Kelola Toko
-      </h2>
-      <p className="text-[13px] text-slate-500 mb-5">
-        Buka/tutup pemesanan dan ubah teks hero landing tanpa edit kode.
-      </p>
-
+    <>
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
       {ok && <Alert variant="success" className="mb-4">{ok}</Alert>}
 
@@ -73,10 +85,20 @@ export default function KelolaToko() {
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-[0.5px] mt-0 mb-4">
               Status Toko
             </h3>
-            <label className="flex items-center gap-3 cursor-pointer mb-3">
-              <input type="checkbox" checked={tutup} onChange={(e) => setTutup(e.target.checked)} className="w-4 h-4" />
-              <span className="text-[13px] font-semibold text-slate-900">Tutup pemesanan sementara</span>
-            </label>
+            <Button
+              variant={tutup ? "danger" : "primary"}
+              size="md"
+              full
+              disabled={gantiStatus}
+              onClick={handleToggleTutup}
+            >
+              {gantiStatus ? "Memproses..." : tutup ? "Tutup" : "Buka"}
+            </Button>
+            <p className="text-[12px] text-slate-500 mt-2 mb-3">
+              {tutup
+                ? "Pesanan ditutup sementara — tap untuk membuka kembali."
+                : "Pesanan dibuka untuk umum — tap untuk menutup sementara."}
+            </p>
             <label className={labelClass}>Pesan saat tutup</label>
             <Textarea value={pesanTutup} onChange={(e) => setPesanTutup(e.target.value)} placeholder="Toko tutup sementara..." className="min-h-[60px]" />
           </Card>
@@ -97,13 +119,32 @@ export default function KelolaToko() {
             </div>
             <label className={labelClass}>Subjudul</label>
             <Textarea value={subjudul} onChange={(e) => setSubjudul(e.target.value)} maxLength={300} className="min-h-[60px]" />
-          </Card>
 
-          <Button variant="primary" size="md" disabled={saving} onClick={simpan}>
-            {saving ? "Menyimpan..." : "Simpan Pengaturan"}
-          </Button>
+            <Button variant="primary" size="md" full disabled={saving} onClick={simpan} className="mt-4">
+              {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+            </Button>
+          </Card>
         </>
       )}
+    </>
+  );
+}
+
+export default function KelolaToko() {
+  return (
+    <div className="max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0 min-w-0">
+      <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
+        Kelola Toko
+      </h2>
+      <p className="text-[13px] text-slate-500 mb-5">
+        Status pemesanan, teks hero landing, dan pengumuman dalam satu tempat.
+      </p>
+
+      <IsiToko />
+
+      <div className="mt-8">
+        <KelolaPengumuman tanpaHeader />
+      </div>
     </div>
   );
 }

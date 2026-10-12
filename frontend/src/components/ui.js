@@ -83,3 +83,12 @@ export function pesanError(err, defaultMsg = "Terjadi kesalahan.") {
   if (typeof detail === "string") return detail;
   return defaultMsg;
 }
+
+/* ---------------- Samarkan email untuk tampilan (k**********m@gmail.com) ---------------- */
+export function samarkanEmail(email = "") {
+  const teks = String(email || "").trim();
+  const [lokal, domain] = teks.split("@");
+  if (!domain || !lokal) return teks;
+  if (lokal.length <= 2) return `${"*".repeat(lokal.length)}@${domain}`;
+  return `${lokal[0]}${"*".repeat(lokal.length - 2)}${lokal[lokal.length - 1]}@${domain}`;
+}

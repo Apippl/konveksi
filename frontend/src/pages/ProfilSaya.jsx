@@ -26,7 +26,8 @@ export default function ProfilSaya() {
   const [kota, setKota] = useState(userLokal.kota || "");
   const [role, setRole] = useState(userLokal.role || "client");
 
-  const isAdmin = ["admin", "superadmin"].includes(role);
+  const isSuperadmin = role === "superadmin";
+  const isAdmin = role === "admin" || isSuperadmin;
   // Admin & superadmin tidak boleh ganti nama (dikelola lewat menu pengelola),
   // dan tidak punya alamat pengiriman karena mereka tidak memesan bordir.
   const bolehUbahNama = !isAdmin;
@@ -114,9 +115,11 @@ export default function ProfilSaya() {
         Profil Saya
       </h2>
       <p className="mt-0 mb-5 text-slate-500 text-[13px]">
-        {isAdmin
-          ? "Kelola informasi akun kamu di sini."
-          : "Kelola informasi akun dan alamat pengiriman pesanan kamu di sini."}
+        {isSuperadmin
+          ? "Kelola informasi akun superadmin kamu di sini."
+          : isAdmin
+            ? "Kelola informasi akun admin kamu di sini."
+            : "Kelola informasi akun dan alamat pengiriman pesanan kamu di sini."}
       </p>
 
       {error && (
@@ -203,7 +206,12 @@ export default function ProfilSaya() {
           </>
         )}
 
-        {isAdmin ? (
+        {isSuperadmin ? (
+          <p className="text-[12px] text-slate-500 m-0">
+            Kamu masuk sebagai superadmin. Untuk mengubah data pengelola lain, gunakan menu{" "}
+            <strong className="text-slate-900">Kelola Pengelola</strong>.
+          </p>
+        ) : isAdmin ? (
           <p className="text-[12px] text-slate-500 m-0">
             Identitas akun ini dikelola oleh superadmin lewat menu{" "}
             <strong className="text-slate-900">Kelola Pengelola</strong>. Hubungi superadmin

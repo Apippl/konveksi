@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import Card from "./Card";
-import Input from "./Input";
+import OtpBoxes from "./OtpBoxes";
 import Button from "./Button";
 import Alert from "./Alert";
 
@@ -106,20 +106,13 @@ export default function SesiAksiGate({ children }) {
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       {!otpDikirim ? (
-        <Button variant="primary" size="md" disabled={loading} onClick={mintaOtp}>
+        <Button variant="primary" size="md" full disabled={loading} onClick={mintaOtp}>
           {loading ? "Mengirim..." : "Kirim Kode OTP ke Email"}
         </Button>
       ) : (
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <Input
-              value={kode}
-              onChange={(e) => setKode(e.target.value)}
-              placeholder="Kode OTP (6 digit)"
-              maxLength={6}
-            />
-          </div>
-          <Button variant="primary" size="md" disabled={loading || kode.length < 6} onClick={verifikasi}>
+        <div className="flex flex-col gap-3">
+          <OtpBoxes value={kode} onChange={setKode} disabled={loading} />
+          <Button variant="primary" size="md" full disabled={loading || kode.length < 6} onClick={verifikasi}>
             {loading ? "Memverifikasi..." : "Verifikasi"}
           </Button>
         </div>

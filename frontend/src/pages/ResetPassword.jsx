@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import api from "../api";
 import AuthCard from "../components/AuthCard";
 import Input from "../components/Input";
+import OtpBoxes from "../components/OtpBoxes";
 import Button from "../components/Button";
-import { labelClass } from "../components/ui";
+import { labelClass, samarkanEmail } from "../components/ui";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
-  const emailAwal = location.state?.email || "";
+  const emailAwal = location.state?.email || sessionStorage.getItem("pendingResetEmail") || "";
+  // Email dikunci mengikuti alur lupa-password — tidak bisa ganti-ganti saat verifikasi.
+  // sessionStorage agar tetap terkunci walau halaman di-refresh (location.state hilang saat refresh).
+  const emailTerkunci = emailAwal !== "";
+
+  useEffect(() => {
+    if (location.state?.email) {
+      sessionStorage.setItem("pendingResetEmail", location.state.email);
+    }
+  }, [location.state]);
 
   const [email, setEmail] = useState(emailAwal);
   const [kode, setKode] = useState("");
@@ -34,7 +44,7 @@ export default function ResetPassword() {
 
     setLoading(true);
 
-    const cleanEmail = email.trim();
+    const cleanEmail = (emailTerkunci ? emailAwal : email).trim();
     const cleanKode = kode.trim();
 
     try {
@@ -43,6 +53,7 @@ export default function ResetPassword() {
         kode: cleanKode,
         password_baru: passwordBaru,
       });
+      sessionStorage.removeItem("pendingResetEmail");
       navigate("/login", { replace: true });
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -61,7 +72,13 @@ export default function ResetPassword() {
   return (
     <AuthCard
       title="Atur Ulang Password"
-      subtitle="Masukkan kode OTP dari email beserta password baru kamu."
+      subtitle={
+        emailTerkunci ? (
+          <>Masukkan kode OTP yang dikirim ke <strong className="text-slate-900 break-all">{samarkanEmail(emailAwal)}</strong> beserta password baru kamu, email ini tidak bisa diubah.</>
+        ) : (
+          "Masukkan kode OTP dari email beserta password baru kamu."
+        )
+      }
       error={error}
       footer={
         <Link to="/login" className="text-blue-600 font-semibold no-underline">
@@ -70,30 +87,23 @@ export default function ResetPassword() {
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <div>
-          <label className={labelClass}>Email</label>
-          <Input
-            type="email"
-            placeholder="nama@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
+        {!emailTerkunci && (
+          <div>
+            <label className={labelClass}>Email</label>
+            <Input
+              type="email"
+              placeholder="nama@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+        )}
 
         <div>
           <label className={labelClass}>Kode OTP</label>
-          <Input
-            type="text"
-            placeholder="123456"
-            value={kode}
-            onChange={(e) => setKode(e.target.value)}
-            maxLength={6}
-            required
-            disabled={loading}
-            className="tracking-[2px] font-semibold"
-          />
+          <OtpBoxes value={kode} onChange={setKode} disabled={loading} />
         </div>
 
         <div>

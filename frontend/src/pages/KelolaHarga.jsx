@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Swal from "sweetalert2";
 import Card from "../components/Card";
-import Input from "../components/Input";
+import RupiahInput from "../components/RupiahInput";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
 
@@ -48,7 +48,7 @@ export default function KelolaHarga() {
   };
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
+    <div className="max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4">
       <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
         Harga Baju
       </h2>
@@ -65,20 +65,20 @@ export default function KelolaHarga() {
           <>
             <div className="flex flex-col gap-2 mb-4">
               {daftar.map((r) => (
-                <div key={r.ukuran} className="flex items-center gap-3 px-3 py-2 rounded-xs border border-slate-200">
-                  <span className="font-bold text-[14px] text-slate-900 w-16">Size {r.ukuran}</span>
-                  <Input
-                    type="number"
-                    min={0}
+                <div key={r.ukuran} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 py-2.5 rounded-xs border border-slate-200 min-w-0">
+                  <div className="flex items-center justify-between gap-2 sm:contents">
+                    <span className="font-bold text-[14px] text-slate-900 sm:w-16">Size {r.ukuran}</span>
+                    <span className="text-[12px] text-slate-500 sm:w-28 sm:text-right">{rupiah(parseInt(r.harga) || 0)}</span>
+                  </div>
+                  <RupiahInput
                     value={r.harga}
-                    onChange={(e) => ubah(r.ukuran, e.target.value)}
-                    className="flex-1"
+                    onChange={(v) => ubah(r.ukuran, v)}
+                    className="w-full sm:flex-1"
                   />
-                  <span className="text-[12px] text-slate-500 w-28 text-right">{rupiah(parseInt(r.harga) || 0)}</span>
                 </div>
               ))}
             </div>
-            <Button variant="primary" size="md" disabled={saving} onClick={simpan}>
+            <Button variant="primary" size="md" full disabled={saving} onClick={simpan}>
               {saving ? "Menyimpan..." : "Simpan Harga"}
             </Button>
           </>

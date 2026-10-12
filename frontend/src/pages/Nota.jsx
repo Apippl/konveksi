@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import Card from "../components/Card";
+import Alert from "../components/Alert";
 import Button from "../components/Button";
 import { pesanError } from "../components/ui";
+import { getUser } from "../auth";
 
 function rupiah(n) {
   return "Rp " + (n ?? 0).toLocaleString("id-ID");
@@ -36,8 +38,8 @@ export default function Nota() {
   if (loading) return <div className="p-10 text-center text-slate-500">Memuat nota...</div>;
   if (error || !p) {
     return (
-      <div className="max-w-[640px] mx-auto px-4 mt-6">
-        <Card className="p-6 text-center text-red-500 text-sm">{error || "Nota tidak ditemukan."}</Card>
+      <div className="max-w-[640px] mx-auto px-0 mt-6 pb-6 sm:px-4 sm:pb-0">
+        <Alert variant="error">{error || "Nota tidak ditemukan."}</Alert>
         <div className="mt-3 no-print">
           <Button variant="outline" size="md" onClick={() => navigate(-1)}>Kembali</Button>
         </div>
@@ -51,8 +53,29 @@ export default function Nota() {
     : "-";
   const lunas = p.status_pembayaran === "Lunas";
 
+  // Nota hanya keluar setelah bayar (lunas). Client yang belum bayar diarahkan bayar dulu.
+  // Admin/superadmin tetap bisa membuka untuk keperluan pengelolaan.
+  const peran = getUser()?.role;
+  const isPengelola = peran === "admin" || peran === "superadmin";
+  if (!lunas && !isPengelola) {
+    return (
+      <div className="max-w-[640px] mx-auto px-0 mt-6 pb-6 sm:px-4 sm:pb-0">
+        <Card className="p-6 text-center">
+          <h2 className="text-slate-900 text-[16px] font-bold uppercase mt-0 mb-2">Nota Belum Tersedia</h2>
+          <p className="text-[13px] text-slate-500 mb-5">
+            Nota baru keluar setelah pembayaran lunas. Selesaikan pembayaran dulu ya.
+          </p>
+          <div className="flex gap-2 justify-center no-print">
+            <Button variant="outline" size="md" onClick={() => navigate(-1)}>Kembali</Button>
+            <Button variant="primary" size="md" onClick={() => navigate(`/checkout/${p.id}`)}>Bayar Sekarang</Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-[640px] mx-auto px-4 mt-6">
+    <div className="max-w-[640px] mx-auto px-0 mt-6 pb-6 sm:px-4 sm:pb-0">
       <div className="flex gap-2 mb-4 no-print">
         <Button variant="outline" size="md" onClick={() => navigate(-1)}>Kembali</Button>
         <Button variant="primary" size="md" onClick={() => window.print()}>Cetak Nota</Button>

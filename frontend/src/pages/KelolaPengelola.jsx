@@ -8,7 +8,7 @@ import Alert from "../components/Alert";
 import SesiAksiGate from "../components/SesiAksiGate";
 import Pagination from "../components/Pagination";
 
-export default function KelolaPengelola() {
+export default function KelolaPengelola({ tanpaHeader = false }) {
   const [daftar, setDaftar] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -119,13 +119,17 @@ export default function KelolaPengelola() {
   }
 
   return (
-    <div className="max-w-[800px] mt-6 mx-auto px-4">
-      <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
-        Kelola Akun Pengelola
-      </h2>
-      <p className="text-[13px] text-slate-500 mb-5">
-        Tambah, ubah nama, atau hapus akun admin pengelola toko.
-      </p>
+    <div className={tanpaHeader ? "min-w-0" : "max-w-[800px] mt-6 mx-auto px-0 pb-6 sm:px-4 sm:pb-0"}>
+      {!tanpaHeader && (
+        <>
+          <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px] mb-2">
+            Kelola Akun Pengelola
+          </h2>
+          <p className="text-[13px] text-slate-500 mb-5">
+            Tambah, ubah nama, atau hapus akun admin pengelola toko.
+          </p>
+        </>
+      )}
 
       <SesiAksiGate>
         <Card className="p-5 mb-6">
@@ -133,12 +137,12 @@ export default function KelolaPengelola() {
             Tambah Akun Pengelola Baru
           </h3>
           {error && <Alert variant="error" className="mb-4">{error}</Alert>}
-          <div className="grid grid-cols-3 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
             <Input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Nama" />
             <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" />
             <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" type="password" />
           </div>
-          <Button variant="primary" size="md" disabled={submitting} onClick={handleTambah}>
+          <Button variant="primary" size="md" disabled={submitting} onClick={handleTambah} className="w-full">
             {submitting ? "Menyimpan..." : "Tambah Pengelola"}
           </Button>
         </Card>
@@ -156,7 +160,7 @@ export default function KelolaPengelola() {
               {daftar.slice((halaman - 1) * PER_HALAMAN, halaman * PER_HALAMAN).map((p) => (
                 <div
                   key={p.id}
-                  className="flex justify-between items-center gap-3 px-3 py-2.5 rounded-xs border border-slate-200"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-3 py-2.5 rounded-xs border border-slate-200 min-w-0"
                 >
                   {editId === p.id ? (
                     <>
@@ -164,19 +168,19 @@ export default function KelolaPengelola() {
                         value={editNama}
                         onChange={(e) => setEditNama(e.target.value)}
                         placeholder="Nama pengelola"
-                        className="flex-1"
+                        className="flex-1 w-full sm:w-auto"
                       />
-                      <div className="flex gap-2 shrink-0">
+                      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto sm:shrink-0">
                         <button
                           onClick={() => handleSimpanNama(p.id)}
                           disabled={savingEdit || !editNama.trim()}
-                          className="bg-brand text-white border-0 px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer disabled:opacity-50"
+                          className="w-full sm:w-24 inline-flex items-center justify-center min-h-[20px] sm:min-h-0 bg-brand text-white border-0 px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer disabled:opacity-50"
                         >
                           {savingEdit ? "Menyimpan..." : "Simpan"}
                         </button>
                         <button
                           onClick={batalEdit}
-                          className="bg-transparent text-muted border border-graphite px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer"
+                          className="w-full sm:w-24 inline-flex items-center justify-center min-h-[20px] sm:min-h-0 bg-transparent text-muted border border-graphite px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer"
                         >
                           Batal
                         </button>
@@ -184,20 +188,20 @@ export default function KelolaPengelola() {
                     </>
                   ) : (
                     <>
-                      <div>
+                      <div className="min-w-0 w-full sm:w-auto">
                         <div className="font-semibold text-[13px] text-slate-900">{p.nama}</div>
-                        <div className="text-[12px] text-slate-500">{p.email}</div>
+                        <div className="text-[12px] text-slate-500 break-all">{p.email}</div>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto sm:shrink-0">
                         <button
                           onClick={() => mulaiEdit(p)}
-                          className="text-brand-soft border border-graphite px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer"
+                          className="w-full sm:w-24 inline-flex items-center justify-center min-h-[20px] sm:min-h-0 text-brand-soft border border-graphite px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleHapus(p.id, p.email)}
-                          className="text-red-600 border border-red-200 px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer"
+                          className="w-full sm:w-24 inline-flex items-center justify-center min-h-[20px] sm:min-h-0 text-red-600 border border-red-200 px-2.5 py-1.5 rounded-xs text-[11px] font-bold uppercase cursor-pointer transition-colors hover:bg-red-600 hover:text-white hover:border-red-600 active:bg-red-700 active:border-red-700"
                         >
                           Hapus
                         </button>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import Card from "../components/Card";
+import Button from "../components/Button";
 import Swal from "sweetalert2";
 
 function formatRupiah(n) {
@@ -9,7 +10,7 @@ function formatRupiah(n) {
 
 function KartuStat({ label, nilai, warna = "text-slate-900" }) {
   return (
-    <Card className="p-4">
+    <Card className="p-5">
       <div className="text-[11px] font-semibold uppercase text-slate-500 mb-1">{label}</div>
       <div className={`text-xl font-bold ${warna}`}>{nilai}</div>
     </Card>
@@ -56,18 +57,20 @@ export default function DashboardKeuangan() {
   if (!data) return <div className="p-10 text-center text-red-500">Gagal memuat data.</div>;
 
   return (
-    <div className="max-w-[1100px] mt-6 mx-auto px-4">
-      <div className="flex justify-between items-center mb-5">
+    <div className="max-w-[1100px] mt-6 mx-auto px-0 pb-6 sm:px-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
         <h2 className="text-slate-900 text-[22px] font-bold uppercase tracking-[-0.3px]">
           Dashboard Keuangan
         </h2>
-        <button
-          onClick={handleExport}
+        <Button
+          variant="primary"
+          size="md"
           disabled={exporting}
-          className="bg-slate-900 text-white px-4 py-2.5 rounded-xs text-[12px] font-bold uppercase cursor-pointer disabled:opacity-50"
+          onClick={handleExport}
+          className="w-full sm:w-auto"
         >
           {exporting ? "Mengunduh..." : "Export CSV"}
-        </button>
+        </Button>
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">

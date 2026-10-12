@@ -3,9 +3,10 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import api from "../api";
 import AuthCard from "../components/AuthCard";
 import Input from "../components/Input";
+import OtpBoxes from "../components/OtpBoxes";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
-import { labelClass, pesanError } from "../components/ui";
+import { labelClass, pesanError, samarkanEmail } from "../components/ui";
 
 export default function VerifikasiOtp() {
   const navigate = useNavigate();
@@ -102,43 +103,35 @@ export default function VerifikasiOtp() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-        <div>
-          <label className={labelClass}>Email</label>
-          <Input
-            type="email"
-            placeholder="nama@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={emailTerkunci || loading || mengirimUlang}
-            className={emailTerkunci ? "bg-slate-100 text-slate-500 cursor-not-allowed opacity-80" : ""}
-          />
-          {emailTerkunci && (
-            <p className="text-[12px] text-slate-500 mt-1.5">
-              Kode dikirim ke email ini dan tidak bisa diubah. Bukan email kamu?{" "}
-              <Link
-                to="/register"
-                onClick={() => sessionStorage.removeItem("pendingVerifyEmail")}
-                className="text-blue-600 font-semibold no-underline"
-              >
-                Daftar ulang
-              </Link>
-            </p>
-          )}
-        </div>
+        {emailTerkunci ? (
+          <p className="text-[13px] text-slate-500 leading-relaxed my-0">
+            Kode dikirim ke <strong className="text-slate-900 break-all">{samarkanEmail(email)}</strong> dan
+            tidak bisa diubah. Bukan email kamu?{" "}
+            <Link
+              to="/register"
+              onClick={() => sessionStorage.removeItem("pendingVerifyEmail")}
+              className="text-blue-600 font-semibold no-underline"
+            >
+              Daftar ulang
+            </Link>
+          </p>
+        ) : (
+          <div>
+            <label className={labelClass}>Email</label>
+            <Input
+              type="email"
+              placeholder="nama@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading || mengirimUlang}
+            />
+          </div>
+        )}
 
         <div>
           <label className={labelClass}>Kode OTP</label>
-          <Input
-            type="text"
-            placeholder="123456"
-            value={kode}
-            onChange={(e) => setKode(e.target.value)}
-            maxLength={6}
-            required
-            disabled={loading || mengirimUlang}
-            className="tracking-[2px] font-semibold"
-          />
+          <OtpBoxes value={kode} onChange={setKode} disabled={loading || mengirimUlang} />
         </div>
 
         <Button type="submit" full disabled={loading || mengirimUlang} className="mt-1.5">
